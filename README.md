@@ -72,7 +72,7 @@ sudo apt install libsundials-dev
 With `conda` package manager install the main common dependencies:
 
 ```
-conda install cython numpy scipy matplotlib sphinx
+conda install cython numpy scipy matplotlib sphinx pandas
 ```
 
 Next install the core package [Cantera](https://cantera.org/):
@@ -105,6 +105,8 @@ new functionalities. I still have a lot of materials from my PhD to organize
 and make available here. This will comprise, depending on my free time, a PFR
 with imposed wall temperature, an adiabatic PFR (adapted from [here](https://github.com/Cantera/cantera-jupyter/blob/master/reactors/1D_pfr_surfchem.ipynb)), and an automatic
 skeletal mechanism generation with DRG method.
+
+Email: waltermateriais@gmail.com
 
 # TODO
 
