@@ -54,15 +54,11 @@ class IsothermalPFR(object):
         trans = kwargs.get('trans', 'multi')
         T_ref = kwargs.get('T_ref', 273.15)
         P_ref = kwargs.get('P_ref', cantera.one_atm)
-
-        self._gas = cantera.Solution(mech, phase, trans=trans)
         T0, P0, X0, self._Ac = *TPX, Ac
 
-        # Get gas reference density for computing velocity.
+        self._gas = cantera.Solution(mech, phase, trans=trans)
         self._gas.TPX = T_ref, P_ref, X0
         self._rho_ref = self._gas.density
-
-        # Get problem constants.
         self._Wk = self._gas.molecular_weights
         self._size = 3 + self._gas.n_species
 
@@ -89,7 +85,7 @@ class IsothermalPFR(object):
         except cantera.CanteraError:
             mu = self._mufunc(self._gas.T)
 
-        # Symbols to make code closer to mathematical formulation.
+        # Make code closer to mathematical formulation.
         rho0 = self._gas.density
         u0 = Q * self._rho_ref / (6.0e+07 * rho0 * self._Ac)
         Y0 = self._gas.Y
@@ -101,8 +97,8 @@ class IsothermalPFR(object):
         b = numpy.zeros(self._size)
 
         # Rows corresponding to species equations.
-        for i in range(self._gas.n_species): #TODO why 1+i????
-            A[i, 1+i] = rho0 * u0
+        for i in range(self._gas.n_species):
+            A[i, 1+i] = rho0 * u0  # TODO why 1+i? I forgot!
         b[:-3] = wdot * self._Wk
 
         # Row of A corresponding to conservation of mass equation.
@@ -128,12 +124,6 @@ class IsothermalPFR(object):
         Array of state `vec` and array of derivatives `vecp` are organized in
         the same order of physical parameters: velocity, density, species and
         pressure. The positions are provided by the defined slices.
-
-        TODO
-        ----
-        It would be better to place pressure before species, simplifying the
-        assembly of slices and the matrix assembly for computation of initial
-        derivatives in `_initialize_dae_problem`.
         """
 
         Y = vec[:-3]
@@ -146,53 +136,25 @@ class IsothermalPFR(object):
         drhodz = vecp[-2]
         dpdz = vecp[-1]
 
-        return (u, rho, p, Y), (dudz, drhodz, dpdz, dYdz)
+        return (Y, u, rho, p), (dYdz, dudz, drhodz, dpdz)
 
     def __call__(self, z, vec, vecp, result):
         """ Residual equations for the problem.
-
-        Mass conservation equation:
-
-        .. math::
-
-                \rho \frac{\partial u}{\partial z} +
-                 u \frac{\partial \rho}{\partial z} = 0
-
-
-        Species conservation equation:
-
-        .. math::
-
-                \rho{}u\frac{\partial Y_{k}}{\partial z} - \omega_{k}W_{k} = 0
-
-        Momentum conservation equation.
-
-        .. math::
-
-                \rho{}u\frac{\partial u}{\partial z} +
-                \frac{\partial p}{\partial z} +
-                8\frac{\mu u}{R^2} = 0
-
-        State equation:
-
-        Here instead of computing the terms manually, we make use of built-in
-        Cantera density, which is compared to current solution value to ensure
-        convergence.
 
         Parameters
         ----------
         z : float
             Independent variable (position).
         vec : numpy.array
-            State of system expressed as [u, rho, Yk, p].
+            State of system expressed as [Y, u, rho, p].
         vecp : numpy.array
-            Derivatives array [dudz, drhodz, dYkdz, dpdz].
+            Derivatives array [dYdz, dudz, drhodz, dpdz].
         result : numpy array
             Array of residuals (return of function).
         """
 
-        (u, rho, p, Y), diffs = self._unpack_ida(vec, vecp)
-        dudz, drhodz, dpdz, dYdz = diffs
+        (Y, u, rho, p), diffs = self._unpack_ida(vec, vecp)
+        dYdz, dudz, drhodz, dpdz = diffs
 
         try:
             self._gas.set_unnormalized_mass_fractions(Y)
@@ -206,8 +168,6 @@ class IsothermalPFR(object):
             mu = self._mufunc(self._gas.T)
 
         urho = u * rho
-        # term_w = self._gas.net_production_rates * self._Wk
-        # term_v = 8 * mu * u * numpy.pi / self._Ac
         result[:-3] = urho * dYdz - self._gas.net_production_rates * self._Wk
         result[-3] = rho * dudz + u * drhodz
         result[-2] = urho * dudz + dpdz + 8 * mu * u * numpy.pi / self._Ac
