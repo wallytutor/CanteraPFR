@@ -1,0 +1,29 @@
+package:
+  name: CanteraPFR
+  version: "0.1.0"
+
+source:
+  git_rev:
+  git_url:
+
+requirements:
+  host:
+    - python
+    - setuptools
+    - scipy
+    - numpy
+    - matplotlib
+    - cantera
+    - scikits.odes
+
+  run:
+    - python
+
+test:
+  imports:
+    -
+
+about:
+  home:
+  license:
+  license_file:

@@ -1,0 +1,5 @@
+*.pyc
+*.png
+doc/build/*
+external/*
+test-dev/*
