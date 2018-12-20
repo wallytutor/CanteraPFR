@@ -16,30 +16,29 @@ mechanisms = ['CT-hydrocarbon-dalmazsi-2017-mech.cti',
 mechanisms = [os.path.join(os.pardir, m) for m in mechanisms]
 
 for mech in mechanisms:
-    basename = os.path.basename(mech)
-    saveas = 'cantera_pfr-{}.png'.format(basename.split('.')[0])
-
-    kwargs = dict(first_step_size=1.0e-06, atol=1.0e-10, rtol=1.0e-08,
-                  max_steps=1000)
+    kwargs = dict(first_step_size=1.0e-06, atol=1.0e-10,
+                  rtol=1.0e-13, max_steps=5000)
 
     x0 = 0.360
     x1 = 0.018 * x0
     x2 = 0.002 * x0
 
+    Q0 = 222
     T0 = 1173.0
     p0 = 5000.0
     X0 = {'N2': 0.64, 'C2H2': x0, 'CH3COCH3': x1, 'CH4': x2}
 
-    Q = 222
-
     Di = 0.028
     Ac = numpy.pi * Di ** 2 / 4
 
-    solver = IsothermalPFR(mech, (T0, p0, X0), Q, Ac)
+    solver = IsothermalPFR(mech, (T0, p0, X0), Q0, Ac)
     solution = solver.integrate(0.40, 0.005, **kwargs)
     x = solution.position
 
     if solution.idasol.flag == 0:
+        basename = os.path.basename(mech)
+        saveas = 'cantera_pfr-{}.png'.format(basename.split('.')[0])
+
         pyplot.close('all')
         pyplot.style.use('bmh')
 
