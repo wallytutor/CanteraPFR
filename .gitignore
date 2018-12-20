@@ -3,3 +3,4 @@
 doc/build/*
 external/*
 test-dev/*
+*.csv
