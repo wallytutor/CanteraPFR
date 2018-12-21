@@ -24,7 +24,7 @@ kwargs = dict(first_step_size=1.0e-08, atol=1.0e-20,
               rtol=1.0e-13, max_steps=5000)
 
 solver = IsothermalPFR('air.cti', (T0, p0, X0), Q0, Ac,
-                       phase='air', trans='Mix')
+                       phase='air', trans='Mix', ofreq=1000)
 solution = solver.integrate(0.40, 0.002, **kwargs)
 solution.to_csv('test_air.csv')
 
