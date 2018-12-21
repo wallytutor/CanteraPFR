@@ -8,8 +8,10 @@ Welcome to CanteraPFR's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   models/base
+   models/adiabatic
    models/isothermal
-
+   references
 
 Indices and tables
 ==================

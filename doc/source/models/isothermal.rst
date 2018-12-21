@@ -113,7 +113,7 @@ need to be provided. This is done by replacing the symbols in previous equations
 by their respective initial states. In order to get the same number of
 unknowns as equations, implicit total derivative of state equation is added to
 the system. These equations form a set of linear equations that can be solved
-by standard linear algebra methods. 
+by standard linear algebra methods.
 
 .. math::
 
@@ -127,13 +127,10 @@ by standard linear algebra methods.
         \end{align*}
 
 Module documentation
-====================
+--------------------
 
-.. autoclass:: CanteraPFR.models._isothermal.IsothermalPFR
+.. autoclass:: CanteraPFR.models._hom_isothermal.IsothermalPFRSolution
    :members:
 
-References
-==========
-
-.. [Ref.1] Chemically Reacting Flow, Theory and Practice. Robert J Kee,
-      Michael E. Coltrin, Peter Glarborg. 2003.
+.. autoclass:: CanteraPFR.models._hom_isothermal.IsothermalPFR
+   :members:
