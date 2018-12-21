@@ -5,4 +5,5 @@ CanteraPFR
 Main interface file.
 """
 
-from .models._isothermal import IsothermalPFR
+from .models._hom_adiabatic import AdiabaticPFR
+from .models._hom_isothermal import IsothermalPFR
