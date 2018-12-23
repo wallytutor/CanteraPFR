@@ -2,6 +2,7 @@
 *.o
 *.pyc
 *.png
+IsothermalPFR
 cantera/*
 doc/build/*
 external/*
