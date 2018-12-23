@@ -26,7 +26,7 @@ for mech in mechanisms:
     Q0 = 222
     T0 = 1173.0
     p0 = 5000.0
-    X0 = {'N2': 0.64, 'C2H2': x0, 'CH3COCH3': x1, 'CH4': x2}
+    X0 = {'N2': 0.64, 'C2H2': x0-x1-x2, 'CH3COCH3': x1, 'CH4': x2}
 
     Di = 0.028
     Ac = numpy.pi * Di ** 2 / 4

@@ -202,12 +202,12 @@ class IsothermalPFR(BasePFR):
         # Momentum equation elements.
         A[-2, :-3] = 0                          # Yk'
         A[-2, -3] = rho0 * u0                   # u'
-        A[-2, -3] = 0                           # rho'
+        A[-2, -2] = 0                           # rho'
         A[-2, -1] = 1                           # p'
 
         # State equation elements.
         A[-1, :-3] = P0 * Wavg ** 2 / self._Wk  # Yk'
-        A[-1, -2] = 0                           # u'
+        A[-1, -3] = 0                           # u'
         A[-1, -2] = RT                          # rho'
         A[-1, -1] = -Wavg                       # p'
 

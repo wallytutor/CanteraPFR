@@ -5,6 +5,8 @@ Cantera framework of chemical kinetics.
 
 # Installation
 
+## Basic Python modules
+
 **Sorry, a conda build is not yet available, we are working on it!**
 
 The installation assumes you are using Anaconda/Miniconda Python distribution.
@@ -91,6 +93,42 @@ Since the package is not complete, the `setup.py` script is not yet working.
 You can place the whole package folder where your `PYTHONPATH` variable is able
 to find it of append path from your user scripts (as the tests currently do).
 
+## C++ executables
+
+Compilation of C++ executables require main Cantera library to be available on
+your system. Cantera is build with `scons`. If this tool is not available on
+your system you can run:
+
+```
+pip install --user scons
+```
+
+or
+
+```
+conda install scons
+```
+
+If you already followed the steps for installing the Python modules, you already
+have Sundials on your system. Otherwise you will need to install Sundials 2.7.0.
+This is required because of the following bug:
+
+**Compiling with Sundials > 30. Line 422 from `IDA_Solver.cpp`
+`SUNLinSolFree((SUNLinearSolver) m_linsol);` leads to a segmentation fault.**
+
+Now you are ready to run script `get_cantera.sh`. This script will download
+and compile Cantera in your working directory (it will take a while). In order
+to produce small executables, using shared libraries is recommended and you
+need to append you `LD_LIBRARY_PATH` environmental variable with the full path
+to `external/lib`. This can be done for your user with:
+
+```
+echo "export LD_LIBRARY_PATH=$(pwd)/external/lib:LD_LIBRARY_PATH" >> ~/.bashrc
+```
+
+or you can choose to manually edit the `Makefile` and use `-lcantera` instead
+of `-lcantera_shared`.
+
 # Documentation
 
 In order to generate the documentation, go to directory `doc/` and run `make`.
@@ -110,9 +148,11 @@ Email: waltermateriais@gmail.com
 
 # TODO
 
-1. Provide a full C++ implementation of basic calculators.
 1. Follow [this](https://conda.io/docs/user-guide/tutorials/build-pkgs.html)
 tutorial to get this package installed with `conda` one day.
 1. Provide built-in DAE solver to avoid `scikits.odes`. Installation is limited
 to Nix systems because it is difficult to provide a reliable way to install this
-package that requires cython, BLAS/LAPACK, and Sundials to be available.
+package that requires cython, BLAS/LAPACK, and Sundials to be available:
+    - Notice that Cantera already has an interface to IDA. This could be
+    cythonized and provide a quick solution to this. Compiling Sundials on
+    Windows is simpler than doing a whole new solver.
