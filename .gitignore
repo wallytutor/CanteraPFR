@@ -2,8 +2,11 @@
 *.o
 *.pyc
 *.png
-IsothermalPFR
+setup-x86_64*
+ccantera*
 cantera/*
-doc/build/*
+cygwin/*
+CanteraPFR/doc/build/*
+CanteraPFR/IsothermalPFR*
 external/*
 test-dev/*

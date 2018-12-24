@@ -25,13 +25,16 @@ try
     double p0 = 5000.0;
     double Q0 = 222.0;
     std::string X0 = "N2:0.64, C2H2:0.3528, CH3COCH3:6.48e-03, CH4:7.2e-04";
-    // std::string mech = "test/CT-hydrocarbon-norinaga-2009-mech.cti";
-    std::string mech = "test/CT-hydrocarbon-dalmazsi-2017-mech.cti";
+    std::string mech = "test/CT-hydrocarbon-norinaga-2009-mech.xml";
+    // std::string mech = "test/CT-hydrocarbon-dalmazsi-2017-mech.xml";
     std::string phase = "gas";
     double rtol = 1.0e-12;
     double atol = 1.0e-20;
     unsigned maxsteps = 50000;
     double dx0 = 1.0e-05;
+
+    // TODO specify type!
+    auto t0 = std::chrono::system_clock::now();
 
     Cantera::IsothermalPFR pfr {mech, phase, Di, T0, p0, X0, Q0};
     Cantera::IDA_Solver solver {pfr};
@@ -60,6 +63,12 @@ try
                   << solver.solution(neq-1) << " "
                   << std::endl;
     }
+
+    // TODO specify types
+    auto t1 = std::chrono::system_clock::now();
+    auto dt = std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0);
+    std::cout << "\nCalculation took " << std::fixed << std::setprecision(3)
+              << dt.count() / 1000.0 << " s" << std::endl;
 
     return 0;
 }

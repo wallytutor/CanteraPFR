@@ -5,7 +5,30 @@ Cantera framework of chemical kinetics.
 
 # Installation
 
-## Basic Python modules
+## Cygwin install (Windows)
+
+**Note: this install comprises only C++ modules for now.**
+
+Cygwin install is made easy by script `get_cygwin.bat`. This will download
+locally everything you need to be available in order to compile the C++
+executables. From you file navigator, just double click `get_cygwin.bat` and
+wait for installation to proceed (this will download Cygwin and all required
+packages, download Cantera and compile Cantera). The process lasts from 10 to
+30 minutes typically, depending on your processor and internet connection.
+
+Once the process has finished, double-click cygwin\\Cygwin.bat and just `cd`
+(some NIX command line is required) to `CanteraPFR` directory. Once you have
+reached your destination, run `make` and the executables must compile.
+
+If you have no experience with Cygwin, take a small tutorial on how to move
+across folders in Linux systems. *Under Cygwin, your drive C: is found under
+/cygdrive/c and the same apply for other possible drives.*
+
+Limitations:
+- Currently Python modules are not compiled for Cygwin (TODO), so only XML
+mechanism files will work with C++ executables. This will be fixed soon.
+
+## Basic Python modules (Linux/Bash for Windows)
 
 **Sorry, a conda build is not yet available, we are working on it!**
 
@@ -13,7 +36,7 @@ The installation assumes you are using Anaconda/Miniconda Python distribution.
 For now the package is supported only on Nix operating systems because the
 solver interface has not yet been adapted to easily compile under Windows (if
 you are a *hardcore* programmer, you will know the steps to make it work under
-native Windows, but for now I suggest you follow the step-by-step intallation
+native Windows, but for now I suggest you follow the step-by-step installation
 provided in what follows).
 
 If your platform is Windows 10, you need to enable Linux Subsystem for Windows
@@ -123,7 +146,7 @@ need to append you `LD_LIBRARY_PATH` environmental variable with the full path
 to `external/lib`. This can be done for your user with:
 
 ```
-echo "export LD_LIBRARY_PATH=$(pwd)/external/lib:LD_LIBRARY_PATH" >> ~/.bashrc
+echo "export LD_LIBRARY_PATH=\"$(pwd)/external/lib:\$LD_LIBRARY_PATH\"" >> ~/.bashrc
 ```
 
 or you can choose to manually edit the `Makefile` and use `-lcantera` instead

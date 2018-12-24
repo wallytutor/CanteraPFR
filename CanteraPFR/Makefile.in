@@ -1,0 +1,2 @@
+EXTERNAL := /cygdrive/d/devel_projects/platforms/Cantera/CanteraPFR/external/Cygwin
+OPTIONS  := -g -O3 -std=c++11 -U__STRICT_ANSI__

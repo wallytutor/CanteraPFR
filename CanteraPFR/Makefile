@@ -2,11 +2,14 @@
 ##  MAKEFILE
 ###############################################################################
 
+include Makefile.in
+
 SOURCES   := src
 SUNDIALS  := -lsundials_ida -lsundials_nvecserial
-INCLUDES  := -Iexternal/include
-LIBRARIES := -Lexternal/lib -lcantera_shared -pthread $(SUNDIALS)
-CPPFLAGS  := -O3 -std=c++11 $(INCLUDES)
+INCLUDES  := -Iinclude -I$(EXTERNAL)/include
+# FIXME shared library failed on Cygwin!
+LIBRARIES := -L$(EXTERNAL)/lib -lcantera -pthread $(SUNDIALS)
+CPPFLAGS  := $(OPTIONS) $(INCLUDES)
 CXX       := g++
 
 ###############################################################################
