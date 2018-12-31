@@ -4,11 +4,15 @@
 
 include Makefile.in
 
+BINARIES  := xAdiabaticPFR \
+						 xHeatWallPFR \
+					   xIsothermalPFR
+
 SOURCES   := src
-SUNDIALS  := -lsundials_ida -lsundials_nvecserial
-INCLUDES  := -Iinclude -I$(EXTERNAL)/include
-# FIXME shared library failed on Cygwin!
-LIBRARIES := -L$(EXTERNAL)/lib -lcantera -pthread $(SUNDIALS)
+SUNDIALS  := -lopenblas -lsundials_ida -lsundials_nvecserial
+CANTERA   := -L$(EXTERNAL)/lib -lcantera_shared
+INCLUDES  := -I$(EXTERNAL)/include -Iinclude
+LIBRARIES := $(CANTERA) $(SUNDIALS) -pthread
 CPPFLAGS  := $(OPTIONS) $(INCLUDES)
 CXX       := g++
 
@@ -21,8 +25,22 @@ OBJECTS := $(patsubst $(SOURCES)/%.cpp,$(SOURCES)/%.o,$(SOBJECT))
 
 ###############################################################################
 ##  COMPILE MODELS
-## TODO for now just the available model, later this has to be improved!
 ###############################################################################
 
-all: $(OBJECTS)
-	$(CXX) $(CPPFLAGS) $(OBJECTS) $(LIBRARIES) -o IsothermalPFR
+.PHONY := all
+all: $(BINARIES)
+
+xAdiabaticPFR: $(OBJECTS) src/AdiabaticPFR/*
+	$(CXX) $(CPPFLAGS) src/AdiabaticPFR/*.o $(LIBRARIES) -o xAdiabaticPFR
+
+xHeatWallPFR: $(OBJECTS) src/HeatWallPFR/*
+	$(CXX) $(CPPFLAGS) src/HeatWallPFR/*.o $(LIBRARIES) -o xHeatWallPFR
+
+xIsothermalPFR: $(OBJECTS) src/IsothermalPFR/*
+	$(CXX) $(CPPFLAGS) src/IsothermalPFR/*.o $(LIBRARIES) -o xIsothermalPFR
+
+clean:
+	$(RM) $(OBJECTS)
+
+dist-clean: clean
+	$(RM) $(BINARIES)
