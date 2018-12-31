@@ -1,5 +1,5 @@
 // ***************************************************************************
-// Provides an isothermal plug-flow reactor model.
+// Provides an adiabatic plug-flow reactor model.
 //
 // Author : Walter Dal'Maz Silva
 // Date   : December 21st 2018
@@ -7,30 +7,32 @@
 // TODO provide analytical Jacobian.
 // ***************************************************************************
 
-#ifndef __ISOTHERMALPFR_HPP__
-#define __ISOTHERMALPFR_HPP__
+#ifndef __ADIABATICPFR_HPP__
+#define __ADIABATICPFR_HPP__
 
 #include "ConstAreaPFR.hpp"
 
 namespace Cantera
 {
 
-class IsothermalPFR : public ConstAreaPFR
+class AdiabaticPFR : public ConstAreaPFR
 {
 public:
-    IsothermalPFR(std::string const& mech,
-                  std::string phase,
-                  doublereal Di,
-                  doublereal T0,
-                  doublereal p0,
-                  std::string X0,
-                  doublereal Q0)
+    AdiabaticPFR(std::string const& mech,
+                 std::string phase,
+                 doublereal Di,
+                 doublereal T0,
+                 doublereal p0,
+                 std::string X0,
+                 doublereal Q0)
         : ConstAreaPFR{mech, phase, Di, T0, p0, X0, Q0, neqs_extra_},
           idx0{nspec_gas_+0},
           idx1{nspec_gas_+1},
           idx2{nspec_gas_+2},
-          m_T0{T0}
+          idx3{nspec_gas_+3}
     {
+        m_hbar.resize(nspec_gas_);
+
         std::cout << "\nInitial temperature (K) . " << m_gas->temperature()
                   << "\nInitial pressure (Pa) ... " << m_gas->pressure()
                   << "\nInitial velocity (m/s) .. " << m_u0
@@ -53,19 +55,19 @@ public:
 
 private:
     //! Number of extra equations.
-    static constexpr unsigned neqs_extra_ = 3;
+    static constexpr unsigned neqs_extra_ = 4;
 
     //! Index of extra equations.
-    const unsigned idx0 = 0, idx1 = 0, idx2 = 0;
+    const unsigned idx0 = 0, idx1 = 0, idx2 = 0, idx3 = 0;
 
-    //! Reactor temperature.
-    const doublereal m_T0 = 0.0;
+    //! Species molar enthalpies.
+    std::vector<doublereal> m_hbar;
 
-}; // (class IsothermalPFR)
+}; // (class AdiabaticPFR)
 
 } // (namespace Cantera)
 
-#endif // (__ISOTHERMALPFR_HPP__)
+#endif // (__ADIABATICPFR_HPP__)
 
 // ***************************************************************************
 //                                  EOF
