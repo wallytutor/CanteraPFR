@@ -62,7 +62,22 @@ function build_cantera()
           ;;
       CYGWIN*|MINGW*)
           machine_os=Win
+          prefix="${DIR}/external/${machine_os}"
           cxx_flags="-g -O3 -std=c++11 -U__STRICT_ANSI__"
+
+          header "${machine_os}" "${prefix}"
+          gen_makeinc "${prefix}" "${cxx_flags}"
+
+          scons build \
+              prefix=${prefix} \
+              python_package="none" \
+              f90_interface="n" \
+              system_eigen="n" \
+              system_fmt="n" \
+              system_googletest="n" \
+              system_sundials="n" \
+              blas_lapack_libs="openblas" \
+              cxx_flags="${cxx_flags}";
           ;;
       *)
           echo "Unsupported system: ${uname_out}"

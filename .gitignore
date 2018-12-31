@@ -2,11 +2,15 @@
 *.o
 *.pyc
 *.png
+*.stackdump
 setup-x86_64*
 ccantera*
 cantera/*
 cygwin/*
 CanteraPFR/doc/build/*
+CanteraPFR/AdiabaticPFR*
 CanteraPFR/IsothermalPFR*
 external/*
 test-dev/*
+cantera/
+CanteraPFR/Makefile.in
