@@ -11,8 +11,7 @@ predefined wall profiles variations of PFR.
 Install `libopenblas-dev`, `libboost-dev` assuming you are using Ubuntu (or their
 variants for your distro) and `scons` prior to installation. Next move to this
 directory and run `get_cantera.sh` and wait for completion. Once done, move to
-`CanteraPFR` and run `make` to generate the library and follow the instructions
-to *Create Python interface*.
+`CanteraPFR` and run `make` to generate the library.
 
 ## Cygwin install (Windows)
 
@@ -42,8 +41,6 @@ of this file are available in your machine. Then execute your Cygwin terminal
 and move to this folder. Manually run `get_cantera.sh` and wait for completion.
 Once done, move to `CanteraPFR` and run `make` to generate library.
 
-Now follow the instructions to *Create Python interface* below.
-
 ## Note for Cygwin and Linux
 
 You can choose to manually edit the `Makefile` and use `-lcantera` instead of
@@ -52,15 +49,6 @@ Sundials and OpenBLAS statically, provides no advantage except for the fact
 that you will not need to append your `.bashrc` as automatically done by
 `get_cantera.sh`. If you do not want to append your `.bashrc`, comment out
 line 20 of `get_cantera.sh`.
-
-## Create Python interface
-
-Once the library was built, you can run the following command to get Python
-modules installed:
-
-```
-python setup.py install
-```
 
 # Documentation
 
