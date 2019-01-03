@@ -31,13 +31,12 @@ public:
           idx2{nspec_gas_+2},
           m_T0{T0}
     {
-        std::cout << std::boolalpha
-                  << "\nStarting solver : " << "IsothermalPFR"
-                  << "\n Using Sundials : " << CT_SUNDIALS_VERSION
-                  << "\n Usign LAPACK   : " << bool(CT_SUNDIALS_USE_LAPACK)
-                  << std::endl;
+        m_var.push_back("u");
+        m_var.push_back("rho");
+        m_var.push_back("p");
 
-        std::cout << "\nInitial temperature (K) . " << m_gas->temperature()
+        std::cout << "\nStarting solver : " << "IsothermalPFR"
+                  << "\nInitial temperature (K) . " << m_gas->temperature()
                   << "\nInitial pressure (Pa) ... " << m_gas->pressure()
                   << "\nInitial velocity (m/s) .. " << m_u0
                   << "\nNumber of equations ..... " << neq_

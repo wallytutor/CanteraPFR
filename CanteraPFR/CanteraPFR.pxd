@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from libcpp.string cimport string
+from libcpp.vector cimport vector
 
 
 cdef extern from "cantera/numerics/ResidJacEval.h" namespace "Cantera":
@@ -59,9 +60,12 @@ cdef extern from "CanteraPFR/IsothermalPFR.hpp" namespace "Cantera":
 cdef extern from "CanteraPFR/SolvePFR.hpp" namespace "Cantera":
     cdef cppclass SolvePFR:
         SolvePFR(CanteraPFR* pfr) except+
+        void init(double x0)
         void setTolerances(double reltol, double abstol)
         void setMaxNumSteps(int n)
         void setInitialStepSize(double h0)
-        void setStopTime(double tstop)
+        void setStopPosition(double tstop)
         int solve(double tout)
         double solution(int k) const
+        vector[double] solutionVector()
+        vector[string] variablesNames() const

@@ -6,9 +6,18 @@ predefined wall profiles variations of PFR.
 
 # Installation
 
+## Linux
+
+Install `libopenblas-dev`, `libboost-dev` assuming you are using Ubuntu (or their
+variants for your distro) and `scons` prior to installation. Next move to this
+directory and run `get_cantera.sh` and wait for completion. Once done, move to
+`CanteraPFR` and run `make` to generate the library and follow the instructions
+to *Create Python interface*.
+
 ## Cygwin install (Windows)
 
-**Note: this install comprises only C++ modules for now.**
+**Note: during development Cygwin is not supported. If you really need this
+interface for now, contact me directly so that we can manage to install it.**
 
 If you do not have Cygwin:
 
@@ -33,14 +42,9 @@ of this file are available in your machine. Then execute your Cygwin terminal
 and move to this folder. Manually run `get_cantera.sh` and wait for completion.
 Once done, move to `CanteraPFR` and run `make` to generate library.
 
-## Linux
+Now follow the instructions to *Create Python interface* below.
 
-Install `libopenblas-dev`, `libboost-dev` assuming you are using Ubuntu (or their
-variants for your distro) and `scons` prior to installation. Next move to this
-directory and run `get_cantera.sh` and wait for completion. Once done, move to
-`CanteraPFR` and run `make` to generate the library.
-
-## Note for Windows and Linux
+## Note for Cygwin and Linux
 
 You can choose to manually edit the `Makefile` and use `-lcantera` instead of
 `-lcantera_shared`. This will produce larger executables and unless you bind
@@ -81,5 +85,6 @@ Email: waltermateriais@gmail.com
 
 # Limitations
 
-1. Only XML mechanism files will work with C++ executables. This will be fixed.
 1. Cantera shared library failed on Cygwin!
+1. For some weird reason Sundials 3.1.0 does not work with Cython modules (although
+binaries compiled with it run just fine).

@@ -13,4 +13,5 @@ CanteraPFR/doc/build/*
 CanteraPFR/lib/*
 CanteraPFR/Makefile.in
 external/*
+sundials/*
 test-dev/*

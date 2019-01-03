@@ -1,42 +1,40 @@
 # -*- coding: utf-8 -*-
 """
 Build Cython interface to CanteraPFR.
-
-TODO
-----
-Automate system resolution (Nix vs Win).
 """
 
 import os
+import sys
 from numpy import get_include
 from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Build import cythonize
 
-basepath = os.path.join(os.pardir, 'external', 'Nix')
+if 'linux' in sys.platform:
+    platform_abbr = 'Nix'
+elif 'darwin' in sys.platform:
+    platform_abbr = 'Nix'
+else:
+    platform_abbr = 'Win'
 
-sources = [
-    'CanteraPFR.pyx',
-    # os.path.join('src', 'AdiabaticPFR.cpp'),
-    # os.path.join('src', 'HeatWallPFR.cpp'),
-    # os.path.join('src', 'IsothermalPFR.cpp')
-    ]
+# TODO use __file__ as initial path to avoid weird stuff!
+basepath = os.path.abspath(os.path.join(os.pardir, 'external', platform_abbr))
 
-include_dirs = [
-    # os.path.join(os.pardir, 'cantera', 'ext', 'sundials', 'include'),
-    get_include(),
-    os.path.join(basepath, 'include'),
-    'include'
-    ]
+sources = ['CanteraPFR.pyx']
+include_dirs = [get_include(), os.path.join(basepath, 'include'), 'include']
 
 extra_objects = [
     os.path.join('lib', 'libCanteraPFR.a'),
-    os.path.join(basepath, 'lib', 'libcantera.a')
+    os.path.join(basepath, 'lib', 'libcantera.a'),
+    os.path.join(basepath, 'lib', 'libsundials_ida.a'),
+    os.path.join(basepath, 'lib', 'libsundials_nvecserial.a')
     ]
 
 extra_compile_args = []
 extra_link_args = ['-lopenblas']
-# '-lsundials_ida', '-lsundials_nvecserial',
+
+# FIXME add all packages here!
+# install_requires = ['numpy>=1.15.1']
 
 setup(
     name = 'CanteraPFR',
@@ -47,8 +45,6 @@ setup(
     license = 'UNLICENSE',
     version = '0.1.0',
     include_dirs = include_dirs,
-    # FIXME add all packages here!
-    # install_requires=['numpy>=1.11.1']
     ext_modules = cythonize(
         Extension(
             name = 'CanteraPFR',

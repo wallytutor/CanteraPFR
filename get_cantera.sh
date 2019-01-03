@@ -33,6 +33,44 @@ function header()
 }
 
 
+function get_sundials()
+{
+  echo "********************************************************************"
+  echo "Trying to retrieve Sundials"
+  sundials_version="2.7.0"
+  sundials_file="sundials-${sundials_version}.tar.gz"
+  wget https://computation.llnl.gov/projects/sundials/download/${sundials_file}
+  tar xzf ${sundials_file}
+  mkdir sundials
+
+  cd sundials
+
+  blas=$(ldconfig -p | grep openblas | tail -1 | awk '{ print $4 }')
+
+  cmake \
+      -DCMAKE_INSTALL_PREFIX="$1" \
+      -DLAPACK_ENABLE="ON" \
+      -DLAPACK_LIBRARIES="${blas}" \
+      -DCMAKE_C_FLAGS="-fPIC -O3" \
+      "../sundials-${sundials_version}"
+
+      # FOR 3.1.0 IN THE FUTURE!
+      # cmake \
+      #     -DCMAKE_INSTALL_PREFIX="$1" \
+      #     -DSUNDIALS_INDEX_TYPE="int32_t" \
+      #     -DBLAS_ENABLE="ON" \
+      #     -DLAPACK_ENABLE="ON" \
+      #     -DBLAS_LIBRARIES="${blas}" \
+      #     -DLAPACK_LIBRARIES="${blas}" \
+      #     -DCMAKE_C_FLAGS="-fPIC -O3" \
+      #     "../sundials-${sundials_version}"
+
+  make install
+  cd ..
+
+}
+
+
 function build_cantera()
 {
   uname_out="$(uname -s)"
@@ -48,15 +86,19 @@ function build_cantera()
 
           header "${machine_os}" "${prefix}"
           gen_makeinc "${prefix}" "${cxx_flags}"
+          get_sundials "${prefix}"
 
           scons build \
               prefix=${prefix} \
               python_package="none" \
-              f90_interface="n" \
+              python3_package="full" \
+              f90_interface="y" \
+              googletest="submodule" \
               system_eigen="n" \
               system_fmt="n" \
-              system_googletest="n" \
-              system_sundials="n" \
+              system_sundials="y" \
+              sundials_include="${prefix}/include" \
+              sundials_libdir="${prefix}/lib" \
               blas_lapack_libs="openblas" \
               cxx_flags="${cxx_flags}";
           ;;
@@ -102,5 +144,6 @@ function get_cantera()
 
   echo "Now run 'source ~/.bashrc' to refresh environment"
 }
+
 
 get_cantera

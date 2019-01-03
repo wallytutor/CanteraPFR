@@ -48,6 +48,12 @@ public:
                unsigned neqs_extra_)
         : ResidJacEval{}
     {
+        std::cout << std::boolalpha
+                  << "\nIntegrating PFR"
+                  << "\nUsing Sundials : " << CT_SUNDIALS_VERSION
+                  << "\nUsing LAPACK   : " << bool(CT_SUNDIALS_USE_LAPACK)
+                  << std::endl;
+
         m_gas = new IdealGasMix {mech, phase};
         m_gas->setState_TPX(273.15, Cantera::OneAtm, X0);
         m_rho_ref = m_gas->density();
@@ -60,6 +66,8 @@ public:
         m_W.resize(nspec_gas_);
         m_wdot.resize(nspec_gas_);
         m_gas->getMolecularWeights(m_W);
+
+        m_var = m_gas->speciesNames();
 
         try
         {
@@ -111,6 +119,11 @@ public:
         m_mu = mu;
     }
 
+    std::vector<std::string> variablesNames() const
+    {
+        return m_var;
+    }
+
 protected:
   //! Pointer to the gas phase object.
   IdealGasMix *m_gas = nullptr;
@@ -126,6 +139,9 @@ protected:
 
   //! Species net production rates.
   std::vector<doublereal> m_wdot;
+
+  //! Species names and variables.
+  std::vector<std::string> m_var;
 
   //! Number of gas phase species.
   unsigned nspec_gas_;

@@ -5,8 +5,8 @@
 include Makefile.in
 
 SOURCES   := src
-# SUNDIALS  := -lsundials_ida -lsundials_nvecserial
-CANTERA   := -L$(EXTERNAL)/lib -lcantera_shared
+SUNDIALS  := -lsundials_ida -lsundials_nvecserial
+CANTERA   := -L$(EXTERNAL)/lib $(SUNDIALS) -lcantera_shared
 INCLUDES  := -I$(EXTERNAL)/include -Iinclude
 LIBRARIES := $(CANTERA) -lopenblas -pthread
 CPPFLAGS  := $(OPTIONS) -fPIC $(INCLUDES)

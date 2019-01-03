@@ -37,14 +37,13 @@ public:
           Tw{Tw}
     {
         m_hbar.resize(nspec_gas_);
+        m_var.push_back("u");
+        m_var.push_back("rho");
+        m_var.push_back("p");
+        m_var.push_back("T");
 
-        std::cout << std::boolalpha
-                  << "\nStarting solver : " << "HeatWallPFR"
-                  << "\n Using Sundials : " << CT_SUNDIALS_VERSION
-                  << "\n Usign LAPACK   : " << bool(CT_SUNDIALS_USE_LAPACK)
-                  << std::endl;
-
-        std::cout << "\nInitial temperature (K) . " << m_gas->temperature()
+        std::cout << "\nStarting solver : " << "HeatWallPFR"
+                  << "\nInitial temperature (K) . " << m_gas->temperature()
                   << "\nInitial pressure (Pa) ... " << m_gas->pressure()
                   << "\nInitial velocity (m/s) .. " << m_u0
                   << "\nNumber of equations ..... " << neq_
