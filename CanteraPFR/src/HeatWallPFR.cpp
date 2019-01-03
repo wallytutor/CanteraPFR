@@ -5,7 +5,7 @@
 // Date   : December 31st 2018
 // ***************************************************************************
 
-#include "HeatWallPFR.hpp"
+#include "CanteraPFR/HeatWallPFR.hpp"
 
 int Cantera::HeatWallPFR::getInitialConditions(const doublereal t0,
     doublereal *const y, doublereal *const ydot)

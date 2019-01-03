@@ -1,17 +1,17 @@
 // ***************************************************************************
-// Provides an isothermal plug-flow reactor model.
+// Provides an adiabatic plug-flow reactor model.
 //
 // Author : Walter Dal'Maz Silva
 // Date   : December 21st 2018
 // ***************************************************************************
 
-#include "IsothermalPFR.hpp"
+#include "CanteraPFR/AdiabaticPFR.hpp"
 
 int main()
 try
 {
     std::cout << std::boolalpha
-              << "\nStarting solver : " << "IsothermalPFR"
+              << "\nStarting solver : " << "AdiabaticPFR"
               << "\n Using Sundials : " << CT_SUNDIALS_VERSION
               << "\n Usign LAPACK   : " << bool(CT_SUNDIALS_USE_LAPACK)
               << std::endl;
@@ -19,7 +19,7 @@ try
     // TODO all these parameters should be read from a file.
     double x = 0.00;
     double L = 0.40;
-    double dx = 0.01;
+    double dx = 0.010;
     double Di = 0.028;
     double T0 = 1173.0;
     double p0 = 5000.0;
@@ -36,7 +36,7 @@ try
     // TODO specify type!
     auto t0 = std::chrono::system_clock::now();
 
-    Cantera::IsothermalPFR pfr {mech, phase, Di, T0, p0, X0, Q0};
+    Cantera::AdiabaticPFR pfr {mech, phase, Di, T0, p0, X0, Q0};
     Cantera::IDA_Solver solver {pfr};
     solver.init(x);
     solver.setTolerances(rtol, atol);
@@ -58,9 +58,11 @@ try
         std::cout << std::scientific << x << " "
                   << solver.solution(id0) << " "
                   << solver.solution(id1) << " "
+                  << solver.solution(neq-4) << " "
                   << solver.solution(neq-3) << " "
                   << solver.solution(neq-2) << " "
                   << solver.solution(neq-1) << " "
+                  << pfr.getIntEnergyMass() << " "
                   << std::endl;
     }
 

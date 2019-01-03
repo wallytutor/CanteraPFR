@@ -8,7 +8,7 @@
 #ifndef __CONSTAREAPFR_HPP__
 #define __CONSTAREAPFR_HPP__
 
-#include "CanteraPFR.hpp"
+#include "CanteraPFR/CanteraPFR.hpp"
 
 namespace Cantera
 {
@@ -23,24 +23,24 @@ public:
                  doublereal p0,
                  std::string X0,
                  doublereal Q0,
-                 unsigned neqs_extra)
-        : CanteraPFR{mech, phase, T0, p0, X0, neqs_extra},
+                 unsigned neqs_extra_)
+        : CanteraPFR{mech, phase, T0, p0, X0, neqs_extra_},
           m_Ac{circleArea(Di)},
           m_u0{setVelocity(Q0)}
         {}
 
-    int getInitialConditions(const doublereal t0,
-                             doublereal *const y,
-                             doublereal *const ydot) = 0;
+    virtual int getInitialConditions(const doublereal t0,
+                                     doublereal *const y,
+                                     doublereal *const ydot) = 0;
 
-    int evalResidNJ(const doublereal t,
-                    const doublereal delta_t,
-                    const doublereal* const y,
-                    const doublereal* const ydot,
-                    doublereal* const resid,
-                    const ResidEval_Type_Enum evalType = Base_ResidEval,
-                    const int id_x = -1,
-                    const doublereal delta_x = 0.0) = 0;
+    virtual int evalResidNJ(const doublereal t,
+                            const doublereal delta_t,
+                            const doublereal* const y,
+                            const doublereal* const ydot,
+                            doublereal* const resid,
+                            const ResidEval_Type_Enum evalType = Base_ResidEval,
+                            const int id_x = -1,
+                            const doublereal delta_x = 0.0) = 0;
 
     //! Compute inlet velocity.
     virtual const doublereal setVelocity(doublereal Q0) const

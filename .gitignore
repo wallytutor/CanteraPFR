@@ -7,10 +7,10 @@ setup-x86_64*
 ccantera*
 cantera/*
 cygwin/*
+CanteraPFR/bin/*
+CanteraPFR/build/*
 CanteraPFR/doc/build/*
-CanteraPFR/AdiabaticPFR*
-CanteraPFR/IsothermalPFR*
+CanteraPFR/lib/*
+CanteraPFR/Makefile.in
 external/*
 test-dev/*
-cantera/
-CanteraPFR/Makefile.in

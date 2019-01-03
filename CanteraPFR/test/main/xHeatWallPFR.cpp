@@ -5,7 +5,7 @@
 // Date   : December 31st 2018
 // ***************************************************************************
 
-#include "HeatWallPFR.hpp"
+#include "CanteraPFR/HeatWallPFR.hpp"
 
 void example01()
 {

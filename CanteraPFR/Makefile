@@ -4,43 +4,48 @@
 
 include Makefile.in
 
-BINARIES  := xAdiabaticPFR \
-						 xHeatWallPFR \
-					   xIsothermalPFR
-
 SOURCES   := src
-SUNDIALS  := -lopenblas -lsundials_ida -lsundials_nvecserial
+# SUNDIALS  := -lsundials_ida -lsundials_nvecserial
 CANTERA   := -L$(EXTERNAL)/lib -lcantera_shared
 INCLUDES  := -I$(EXTERNAL)/include -Iinclude
-LIBRARIES := $(CANTERA) $(SUNDIALS) -pthread
-CPPFLAGS  := $(OPTIONS) $(INCLUDES)
+LIBRARIES := $(CANTERA) -lopenblas -pthread
+CPPFLAGS  := $(OPTIONS) -fPIC $(INCLUDES)
 CXX       := g++
+AR        := ar
+ARFLAGS   := sq
 
 ###############################################################################
 ##  CONVERT OBJECTS
 ###############################################################################
 
-SOBJECT := $(shell find $(SOURCES) -iname "*.cpp")
-OBJECTS := $(patsubst $(SOURCES)/%.cpp,$(SOURCES)/%.o,$(SOBJECT))
+SOBJECT  := $(shell find $(SOURCES) -iname "*.cpp")
+OBJECTS  := $(patsubst $(SOURCES)/%.cpp,$(SOURCES)/%.o,$(SOBJECT))
+BINARIES := xAdiabaticPFR xHeatWallPFR xIsothermalPFR
 
 ###############################################################################
 ##  COMPILE MODELS
 ###############################################################################
 
 .PHONY := all
-all: $(BINARIES)
+all: $(OBJECTS)
+	$(AR) $(ARFLAGS) lib/libCanteraPFR.a $(OBJECTS)
 
-xAdiabaticPFR: $(OBJECTS) src/AdiabaticPFR/*
-	$(CXX) $(CPPFLAGS) src/AdiabaticPFR/*.o $(LIBRARIES) -o xAdiabaticPFR
+test: $(BINARIES)
 
-xHeatWallPFR: $(OBJECTS) src/HeatWallPFR/*
-	$(CXX) $(CPPFLAGS) src/HeatWallPFR/*.o $(LIBRARIES) -o xHeatWallPFR
+xAdiabaticPFR: $(OBJECTS)
+	$(CXX) $(CPPFLAGS) test/main/xAdiabaticPFR.cpp src/AdiabaticPFR.o \
+	$(LIBRARIES) -o bin/xAdiabaticPFR
 
-xIsothermalPFR: $(OBJECTS) src/IsothermalPFR/*
-	$(CXX) $(CPPFLAGS) src/IsothermalPFR/*.o $(LIBRARIES) -o xIsothermalPFR
+xHeatWallPFR: $(OBJECTS)
+	$(CXX) $(CPPFLAGS) test/main/xHeatWallPFR.cpp src/HeatWallPFR.o \
+	$(LIBRARIES) -o bin/xHeatWallPFR
+
+xIsothermalPFR: $(OBJECTS)
+	$(CXX) $(CPPFLAGS) test/main/xIsothermalPFR.cpp src/IsothermalPFR.o \
+	$(LIBRARIES) -o bin/xIsothermalPFR
 
 clean:
 	$(RM) $(OBJECTS)
 
 dist-clean: clean
-	$(RM) $(BINARIES)
+	$(RM) bin/* lib/*

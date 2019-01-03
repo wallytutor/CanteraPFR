@@ -76,8 +76,8 @@ function build_cantera()
               system_fmt="n" \
               system_googletest="n" \
               system_sundials="n" \
-              blas_lapack_libs="openblas" \
               cxx_flags="${cxx_flags}";
+              # FIXME path to blas_lapack_libs="openblas" \
           ;;
       *)
           echo "Unsupported system: ${uname_out}"

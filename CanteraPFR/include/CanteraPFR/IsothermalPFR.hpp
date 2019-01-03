@@ -1,5 +1,5 @@
 // ***************************************************************************
-// Provides an adiabatic plug-flow reactor model.
+// Provides an isothermal plug-flow reactor model.
 //
 // Author : Walter Dal'Maz Silva
 // Date   : December 21st 2018
@@ -7,31 +7,35 @@
 // TODO provide analytical Jacobian.
 // ***************************************************************************
 
-#ifndef __ADIABATICPFR_HPP__
-#define __ADIABATICPFR_HPP__
+#ifndef __ISOTHERMALPFR_HPP__
+#define __ISOTHERMALPFR_HPP__
 
-#include "ConstAreaPFR.hpp"
+#include "CanteraPFR/ConstAreaPFR.hpp"
 
 namespace Cantera
 {
 
-class AdiabaticPFR : public ConstAreaPFR
+class IsothermalPFR : public ConstAreaPFR
 {
 public:
-    AdiabaticPFR(std::string const& mech,
-                 std::string phase,
-                 doublereal Di,
-                 doublereal T0,
-                 doublereal p0,
-                 std::string X0,
-                 doublereal Q0)
+    IsothermalPFR(std::string const& mech,
+                  std::string phase,
+                  doublereal Di,
+                  doublereal T0,
+                  doublereal p0,
+                  std::string X0,
+                  doublereal Q0)
         : ConstAreaPFR{mech, phase, Di, T0, p0, X0, Q0, neqs_extra_},
           idx0{nspec_gas_+0},
           idx1{nspec_gas_+1},
           idx2{nspec_gas_+2},
-          idx3{nspec_gas_+3}
+          m_T0{T0}
     {
-        m_hbar.resize(nspec_gas_);
+        std::cout << std::boolalpha
+                  << "\nStarting solver : " << "IsothermalPFR"
+                  << "\n Using Sundials : " << CT_SUNDIALS_VERSION
+                  << "\n Usign LAPACK   : " << bool(CT_SUNDIALS_USE_LAPACK)
+                  << std::endl;
 
         std::cout << "\nInitial temperature (K) . " << m_gas->temperature()
                   << "\nInitial pressure (Pa) ... " << m_gas->pressure()
@@ -55,19 +59,19 @@ public:
 
 private:
     //! Number of extra equations.
-    static constexpr unsigned neqs_extra_ = 4;
+    static constexpr unsigned neqs_extra_ = 3;
 
     //! Index of extra equations.
-    const unsigned idx0 = 0, idx1 = 0, idx2 = 0, idx3 = 0;
+    const unsigned idx0 = 0, idx1 = 0, idx2 = 0;
 
-    //! Species molar enthalpies.
-    std::vector<doublereal> m_hbar;
+    //! Reactor temperature.
+    const doublereal m_T0 = 0.0;
 
-}; // (class AdiabaticPFR)
+}; // (class IsothermalPFR)
 
 } // (namespace Cantera)
 
-#endif // (__ADIABATICPFR_HPP__)
+#endif // (__ISOTHERMALPFR_HPP__)
 
 // ***************************************************************************
 //                                  EOF
