@@ -15,3 +15,4 @@ CanteraPFR/Makefile.in
 external/*
 sundials/*
 test-dev/*
+cantera/
