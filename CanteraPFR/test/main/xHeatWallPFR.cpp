@@ -21,8 +21,8 @@ void example01()
     double Tw = 1173.0;
     // std::function<double(double)> Tw = [](double) { return 1173.0; };
     std::string X0 = "N2:0.64, C2H2:0.3528, CH3COCH3:6.48e-03, CH4:7.2e-04";
-    // std::string mech = "test/CT-hydrocarbon-norinaga-2009-mech.xml";
-    std::string mech = "test/CT-hydrocarbon-dalmazsi-2017-mech.xml";
+    // std::string mech = "test/data/CT-hydrocarbon-norinaga-2009-mech.xml";
+    std::string mech = "test/data/CT-hydrocarbon-dalmazsi-2017-mech.xml";
     std::string phase = "gas";
     double rtol = 1.0e-12;
     double atol = 1.0e-20;
