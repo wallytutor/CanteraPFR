@@ -6,14 +6,48 @@ from CanteraPFR cimport IsothermalPFR
 from CanteraPFR cimport SolvePFR
 
 import time
+import ctypes
 from numpy import arange
 from numpy import array
 from pandas import DataFrame
 
+# See https://stackoverflow.com/questions/51044122
+# https://github.com/JohannesBuchner/PyMultiNest/issues/5
+
+cdef class Closure:
+    cdef object python_fun
+    cdef object jit_wrap
+
+    def __cinit__(self, python_fun):
+        self.python_fun = python_fun
+        ftype = ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)
+        self.jit_wrap = ftype(self.inner_fun)
+
+    def inner_fun(self, double arg):
+        return self.python_fun(arg)
+
+    cdef func_t get_fun_ptr(self):
+        return (<func_t *><size_t>ctypes.addressof(self.jit_wrap))[0]
+
 
 cdef class PyPFR:
+    """ Python wrapper to plug-flow reactor models.
+
+    This class is built around several plug-flow reactor models.  The selection
+    of these is made according to the provided model name.
+
+    TODO
+    ----
+    Provide docstrings to all methods.
+    Make standard graphical ouput.
+    Include theory in rst documentation.
+
+    Parameters
+    ----------
+    """
     cdef CanteraPFR* obj
     cdef SolvePFR* sol
+    cdef Closure cl
 
     def __cinit__(self, rtype, mech, phase, Di, T0, p0, X0, Q0, htc=None,
                   Tw=None):
@@ -29,7 +63,15 @@ cdef class PyPFR:
         elif rtype.lower() == 'heatwall':
             assert htc is not None, 'Missing heat transfer coefficient'
             assert Tw is not None, 'Missing wall temperature'
-            self.obj = new HeatWallPFR(mech, phase, Di, T0, p0, X0, Q0, htc, Tw)
+
+            if isinstance(Tw, float):
+                self.cl = Closure(lambda x: Tw)
+            else:
+                # Some test here!
+                self.cl = Closure(Tw)
+
+            self.obj = new HeatWallPFR(mech, phase, Di, T0, p0, X0, Q0, htc,
+                                       self.cl.get_fun_ptr())
         else:
             raise SystemExit(f'Unknown reactor type : {rtype}')
 

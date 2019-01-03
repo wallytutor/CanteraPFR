@@ -3,6 +3,10 @@ from libcpp.string cimport string
 from libcpp.vector cimport vector
 
 
+ctypedef double (*func_t_none)()
+ctypedef double (*func_t)(double)
+
+
 cdef extern from "cantera/numerics/ResidJacEval.h" namespace "Cantera":
     cdef cppclass ResidJacEval:
         ResidJacEval(double atol = 1.0e-13) except+
@@ -21,7 +25,7 @@ cdef extern from "CanteraPFR/CanteraPFR.hpp" namespace "Cantera":
                    string X0, unsigned neqs_extra_) except+
         unsigned getSpeciesIndex(string name) const
         double getIntEnergyMass() const
-        # void setViscosityFunc(std::function<double()> const& mu)
+        void setViscosityFunc(func_t_none mu)
         int getInitialConditions(const double t0, double *const y,
                                  double *const ydot)
         int evalResidNJ(const double t, const double delta_t,
@@ -48,7 +52,7 @@ cdef extern from "CanteraPFR/HeatWallPFR.hpp" namespace "Cantera":
     cdef cppclass HeatWallPFR(ConstAreaPFR):
         HeatWallPFR(const string& mech, string phase, double Di, double T0,
                     double p0, string X0, double Q0, double htc,
-                    double Tw) except+
+                    func_t Tw) except+
 
 
 cdef extern from "CanteraPFR/IsothermalPFR.hpp" namespace "Cantera":
