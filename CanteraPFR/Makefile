@@ -13,6 +13,7 @@ CPPFLAGS  := $(OPTIONS) -fPIC $(INCLUDES)
 CXX       := g++
 AR        := ar
 ARFLAGS   := sq
+RM        := rm -rf
 
 ###############################################################################
 ##  CONVERT OBJECTS
@@ -29,6 +30,7 @@ BINARIES := xAdiabaticPFR xHeatWallPFR xIsothermalPFR
 .PHONY := all
 all: $(OBJECTS)
 	$(AR) $(ARFLAGS) lib/libCanteraPFR.a $(OBJECTS)
+	python setup.py install
 
 test: $(BINARIES)
 
@@ -45,7 +47,7 @@ xIsothermalPFR: $(OBJECTS)
 	$(LIBRARIES) -o bin/xIsothermalPFR
 
 clean:
-	$(RM) $(OBJECTS)
+	$(RM) $(OBJECTS) build
 
 dist-clean: clean
 	$(RM) bin/* lib/*
