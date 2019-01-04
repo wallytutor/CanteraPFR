@@ -6,11 +6,11 @@ Welcome to CanteraPFR's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Package Contents:
 
-   models/base
-   models/adiabatic
-   models/isothermal
+   models
+   interfaces
+   development
    references
 
 Indices and tables

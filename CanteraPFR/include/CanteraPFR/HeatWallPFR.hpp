@@ -3,8 +3,6 @@
 //
 // Author : Walter Dal'Maz Silva
 // Date   : December 31st 2018
-//
-// TODO provide analytical Jacobian.
 // ***************************************************************************
 
 #ifndef __HEATWALLPFR_HPP__

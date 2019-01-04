@@ -6,6 +6,21 @@ predefined wall profiles variations of PFR.
 
 # Installation
 
+The following steps assume you do not dispose of a Cantera (at least 2.4.0 install in
+your machine. **Notice that the following will only work if you compiled Cantera
+locally with Sundials 2.7.0**. If you already have Cantera, just create a file named
+`Makefile.in` in `CanteraPFR` directory (same level as `Makefile`) and write the
+following contents to this file:
+
+```
+EXTERNAL := full path to your Cantera and Sundials-2.7.0 roots (must be the same).
+OPTIONS  := -g -O3 -std=c++11
+```
+
+If Sundials is elsewhere, you will need to edit the `Makefile` itself, and if you
+intend to do this I assume you know how to do that.  If compiling from Cygwin, also
+add `-U__STRICT_ANSI__` to `OPTIONS` line.
+
 ## Linux
 
 Install `libopenblas-dev`, `libboost-dev` assuming you are using Ubuntu (or their
@@ -52,8 +67,7 @@ line 20 of `get_cantera.sh`.
 
 # Documentation
 
-**Outdated/deprecated:** the documentation will continue to be as follows once
-Cython modules are written/updated.
+**Only after building the project, otherwise Sphinx will not be able to import!**
 
 In order to generate the documentation, go to directory `doc/` and run `make`.
 This will provide a list of types you can compile the documentation. The default

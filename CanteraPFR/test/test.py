@@ -57,6 +57,19 @@ def case02():
 
 
 def case03():
+    """ Usage of `heatwall` as adiabatic PFR model. """
+
+    htc = 0
+
+    rtype = 'heatwall'
+    prob = PyPFR(rtype, mech, phase, Di, T0, p0, X0, Q0, htc=htc, Tw=T0)
+    prob.set_tolerances(rtol, atol)
+    prob.set_max_num_steps(maxsteps)
+    prob.set_initial_step_size(dx0)
+    prob.manage_solution(Lr, dx, f'solution_{rtype}_0.csv', outfreq=10)
+
+
+def case04():
     """ Usage of PFR model with functional wall temperature. """
 
     htc = 10
@@ -70,7 +83,7 @@ def case03():
     prob.manage_solution(Lr, dx, f'solution_{rtype}_2.csv', outfreq=10)
 
 
-def case04():
+def case05():
     """ Usage of PFR model with constant wall temperature. """
 
     htc = 10
@@ -88,3 +101,4 @@ case01()
 case02()
 case03()
 case04()
+case05()

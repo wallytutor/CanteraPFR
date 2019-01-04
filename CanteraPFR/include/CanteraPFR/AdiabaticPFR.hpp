@@ -3,8 +3,6 @@
 //
 // Author : Walter Dal'Maz Silva
 // Date   : December 21st 2018
-//
-// TODO provide analytical Jacobian.
 // ***************************************************************************
 
 #ifndef __ADIABATICPFR_HPP__

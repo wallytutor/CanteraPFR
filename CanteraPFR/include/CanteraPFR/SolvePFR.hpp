@@ -3,10 +3,6 @@
 //
 // Author : Walter Dal'Maz Silva
 // Date   : December 30th 2018
-//
-// TODO
-// ====
-// Manage return codes from IDA_Solver.solve in wrapper function.
 // ***************************************************************************
 
 #ifndef __SOLVEPFR_HPP__
@@ -68,6 +64,7 @@ public:
 
     int solve(doublereal tout)
     {
+        // TODO Manage return codes from IDA_Solver.solve.
         try
         {
             return m_solver->solve(tout);

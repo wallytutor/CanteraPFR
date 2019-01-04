@@ -18,7 +18,7 @@ int Cantera::HeatWallPFR::getInitialConditions(const doublereal t0,
     const doublereal rho0R = rho0 * Cantera::GasConstant;
     const doublereal rhoUCp = rho0 * m_u0 * m_gas->cp_mass();
     doublereal hdot = 0;
-    doublereal wall = 0 ; //wallHeatExchange(t0, T0);
+    doublereal wall = wallHeatExchange(t0, T0);
 
     m_gas->getMassFractions(y);
     m_gas->getNetProductionRates(&m_wdot[0]);
