@@ -2,7 +2,7 @@
 import os
 import numpy
 from CanteraPFR import PyPFR
-
+from CanteraPFR import plotPFR
 
 mech = os.path.join(b"data", b"CT-hydrocarbon-dalmazsi-2017-mech.xml")
 # mech = os.path.join(b"data", b"CT-hydrocarbon-norinaga-2009-mech.cti")
@@ -21,6 +21,12 @@ rtol = 1.0e-08
 atol = 1.0e-08
 maxsteps = 50000
 dx0 = 1.0e-05
+
+species = {'C2H2': '$\\mathrm{C_2H_2}$',
+           'C4H2': '$\\mathrm{C_4H_2}$'
+           }
+
+conf = dict(outfreq=10, overwrite=True)
 
 
 def Tw2(x):
@@ -42,7 +48,8 @@ def case01():
     prob.set_tolerances(rtol, atol)
     prob.set_max_num_steps(maxsteps)
     prob.set_initial_step_size(dx0)
-    prob.manage_solution(Lr, dx, f'solution_{rtype}.csv', outfreq=10)
+    data = prob.manage_solution(Lr, dx, f'solution_{rtype}.csv', **conf)
+    plotPFR(data, species, f'solution_{rtype}.png')
 
 
 def case02():
@@ -53,7 +60,8 @@ def case02():
     prob.set_tolerances(rtol, atol)
     prob.set_max_num_steps(maxsteps)
     prob.set_initial_step_size(dx0)
-    prob.manage_solution(Lr, dx, f'solution_{rtype}.csv', outfreq=10)
+    data = prob.manage_solution(Lr, dx, f'solution_{rtype}.csv', **conf)
+    plotPFR(data, species, f'solution_{rtype}.png')
 
 
 def case03():
@@ -66,7 +74,8 @@ def case03():
     prob.set_tolerances(rtol, atol)
     prob.set_max_num_steps(maxsteps)
     prob.set_initial_step_size(dx0)
-    prob.manage_solution(Lr, dx, f'solution_{rtype}_0.csv', outfreq=10)
+    data = prob.manage_solution(Lr, dx, f'solution_{rtype}_0.csv', **conf)
+    plotPFR(data, species, f'solution_{rtype}_0.png')
 
 
 def case04():
@@ -80,7 +89,8 @@ def case04():
     prob.set_tolerances(rtol, atol)
     prob.set_max_num_steps(maxsteps)
     prob.set_initial_step_size(dx0)
-    prob.manage_solution(Lr, dx, f'solution_{rtype}_2.csv', outfreq=10)
+    data = prob.manage_solution(Lr, dx, f'solution_{rtype}_2.csv', **conf)
+    plotPFR(data, species, f'solution_{rtype}_2.png')
 
 
 def case05():
@@ -94,7 +104,8 @@ def case05():
     prob.set_tolerances(rtol, atol)
     prob.set_max_num_steps(maxsteps)
     prob.set_initial_step_size(dx0)
-    prob.manage_solution(Lr, dx, f'solution_{rtype}_1.csv', outfreq=10)
+    data = prob.manage_solution(Lr, dx, f'solution_{rtype}_1.csv', **conf)
+    plotPFR(data, species, f'solution_{rtype}_1.png')
 
 
 case01()

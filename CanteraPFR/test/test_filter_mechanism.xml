@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<ctml>
+    <validate reactions="yes" species="yes"/>
+    <phase dim="3" id="gas">
+        <elementArray datasrc="elements.xml">
+            Ar C H N O
+        </elementArray>
+        <speciesArray datasrc="gri30.cti#species_data">
+            C2H2 C2H4 CH4 H2 <skip element="undeclared"/>
+        </speciesArray>
+        <reactionArray datasrc="gri30.cti#reaction_data">
+            <skip species="undeclared" third_bodies="undeclared"/>
+        </reactionArray>
+        <thermo model="IdealGas"/>
+        <kinetics model="GasKinetics"/>
+        <transport model="Multi"/>
+    </phase>
+</ctml>

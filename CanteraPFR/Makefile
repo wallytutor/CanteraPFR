@@ -4,7 +4,7 @@
 
 include Makefile.in
 
-SOURCES   := src
+SOURCES   := src/cpp
 SUNDIALS  := -lsundials_ida -lsundials_nvecserial
 CANTERA   := -L$(EXTERNAL)/lib $(SUNDIALS) -lcantera_shared
 INCLUDES  := -I$(EXTERNAL)/include -Iinclude
@@ -30,20 +30,20 @@ BINARIES := xAdiabaticPFR xHeatWallPFR xIsothermalPFR
 .PHONY := all
 all: $(OBJECTS)
 	$(AR) $(ARFLAGS) lib/libCanteraPFR.a $(OBJECTS)
-	python setup.py install
+	python setup.py install && cd doc; make html
 
 test: $(BINARIES)
 
 xAdiabaticPFR: $(OBJECTS)
-	$(CXX) $(CPPFLAGS) test/main/xAdiabaticPFR.cpp src/AdiabaticPFR.o \
+	$(CXX) $(CPPFLAGS) test/main/xAdiabaticPFR.cpp src/cpp/AdiabaticPFR.o \
 	$(LIBRARIES) -o bin/xAdiabaticPFR
 
 xHeatWallPFR: $(OBJECTS)
-	$(CXX) $(CPPFLAGS) test/main/xHeatWallPFR.cpp src/HeatWallPFR.o \
+	$(CXX) $(CPPFLAGS) test/main/xHeatWallPFR.cpp src/cpp/HeatWallPFR.o \
 	$(LIBRARIES) -o bin/xHeatWallPFR
 
 xIsothermalPFR: $(OBJECTS)
-	$(CXX) $(CPPFLAGS) test/main/xIsothermalPFR.cpp src/IsothermalPFR.o \
+	$(CXX) $(CPPFLAGS) test/main/xIsothermalPFR.cpp src/cpp/IsothermalPFR.o \
 	$(LIBRARIES) -o bin/xIsothermalPFR
 
 clean:

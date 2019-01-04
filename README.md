@@ -71,8 +71,8 @@ line 20 of `get_cantera.sh`.
 
 In order to generate the documentation, go to directory `doc/` and run `make`.
 This will provide a list of types you can compile the documentation. The default
-and recommended format is `make html`. Documentation will be generated under
-`doc/build/<type>`.
+format is `make html` and this is already compiled with library is built.
+Documentation will be generated under `doc/build/<type>`.
 
 # Contribute
 

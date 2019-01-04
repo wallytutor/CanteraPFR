@@ -163,3 +163,13 @@ by standard linear algebra methods.
 Notice that here equations were expressed in most general form considered in this
 package. Temperature derivatives have to be eliminated for isothermal case and
 convective heat transfer coefficient set to zero in adiabatic limit.
+
+Reference API
+-------------
+
+.. module:: CanteraPFR
+
+.. autoclass:: PyPFR
+    :members:
+    :undoc-members:
+    :show-inheritance:

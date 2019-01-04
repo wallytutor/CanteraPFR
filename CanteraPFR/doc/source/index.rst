@@ -8,7 +8,9 @@ Welcome to CanteraPFR's documentation!
    :maxdepth: 2
    :caption: Package Contents:
 
-   models
+   pypfr
+   maxmixedness
+   dimensionless
    interfaces
    development
    references

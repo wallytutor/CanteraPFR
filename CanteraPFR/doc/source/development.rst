@@ -18,10 +18,10 @@ provided in C++. This implies that development workflow should follow the path:
 2. Provide Cython interface:
     a. Add C++ interfaces to *CanteraPFR.pdx*.
     b. Implement Python callable interface to new models in *CanteraPFR.pyx*.
-    c. Add test to new model to *test/test.py*.
+    c. Add test to new model to a script under *test*.
 3. Build and test project with new model:
     a. Run `make` from main directory.
-    b. Execute *test.py* from its directory.
+    b. Execute the newly created test from its directory.
     c. Run `make` from *doc* directory for documentation.
 
 Functionalities to implement

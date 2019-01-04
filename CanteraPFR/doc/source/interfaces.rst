@@ -3,7 +3,12 @@ Reference API
 
 .. module:: CanteraPFR
 
-.. autoclass:: PyPFR
-    :members:
-    :undoc-members:
-    :show-inheritance:
+Graphical output
+----------------
+
+.. autofunction:: plotPFR
+
+Utilities
+---------
+
+.. autofunction:: filter_mechanism

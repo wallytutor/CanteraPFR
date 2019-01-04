@@ -24,6 +24,10 @@
 #define VISCOSITY_DEFAULT 3.957996309582866e-05
 #endif
 
+#ifndef SUPPRESS_WARNINGS
+#define SUPPRESS_WARNINGS true
+#endif
+
 namespace Cantera
 {
 
@@ -48,6 +52,8 @@ public:
                unsigned neqs_extra_)
         : ResidJacEval{}
     {
+        suppress_thermo_warnings(SUPPRESS_WARNINGS);
+
         std::cout << std::boolalpha
                   << "\nIntegrating PFR"
                   << "\nUsing Sundials : " << CT_SUNDIALS_VERSION
@@ -89,6 +95,7 @@ public:
     {
         if (m_gas != nullptr) delete m_gas;
         if (m_trn != nullptr) delete m_trn;
+        appdelete();
     }
 
     virtual int getInitialConditions(const doublereal t0,
