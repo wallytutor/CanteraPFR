@@ -40,7 +40,11 @@ extra_objects = [
     ]
 
 extra_compile_args = []
-extra_link_args = ['-lopenblas']
+
+if platform_abbr == 'Nix':
+    extra_link_args = ['-lopenblas']
+else:
+    extra_link_args = []
 
 # FIXME add all packages here!
 # install_requires = ['numpy>=1.15.1']

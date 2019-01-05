@@ -4,17 +4,18 @@
 
 include Makefile.in
 
-SOURCES   := CanteraPFR/src/cpp
-SUNDIALS  := -lsundials_ida -lsundials_nvecserial
-CANTERA   := -L$(EXTERNAL)/lib $(SUNDIALS) -lcantera_shared
+SUNDIALS  := -L$(SUNDIALS_PATH) $(SUNDIALS_LIBS)
+CANTERA   := -L$(CANTERA_PATH) $(CANTERA_LIBS)
 INCLUDES  := -I$(EXTERNAL)/include -ICanteraPFR/include
-LIBRARIES := $(CANTERA) -lopenblas -pthread
+LIBRARIES := $(CANTERA) $(SUNDIALS) $(OPENBLAS) -pthread
 CPPFLAGS  := $(OPTIONS) -fPIC $(INCLUDES)
+
 CXX       := g++
 AR        := ar
 ARFLAGS   := sq
 RM        := rm -rf
 
+SOURCES   := CanteraPFR/src/cpp
 TEST      := CanteraPFR/test/main
 BINS      := CanteraPFR/bin
 
@@ -33,7 +34,7 @@ BINARIES := xAdiabaticPFR xHeatWallPFR xIsothermalPFR
 .PHONY := all
 all: $(OBJECTS)
 	$(AR) $(ARFLAGS) CanteraPFR/lib/libCanteraPFR.a $(OBJECTS)
-	python setup.py install && cd CanteraPFR/doc; make html
+	python3 setup.py install && cd CanteraPFR/doc; make html
 
 test: $(BINARIES)
 
