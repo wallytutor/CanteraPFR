@@ -167,7 +167,7 @@ convective heat transfer coefficient set to zero in adiabatic limit.
 Reference API
 -------------
 
-.. module:: CanteraPFR
+.. module:: CanteraPFR.CanteraPFR
 
 .. autoclass:: PyPFR
     :members:

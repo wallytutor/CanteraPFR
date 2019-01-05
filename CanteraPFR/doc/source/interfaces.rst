@@ -1,7 +1,7 @@
 Reference API
 =============
 
-.. module:: CanteraPFR
+.. module:: CanteraPFR.CanteraAux
 
 Graphical output
 ----------------

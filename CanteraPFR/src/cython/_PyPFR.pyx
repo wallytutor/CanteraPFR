@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from CanteraPFR cimport AdiabaticPFR
-from CanteraPFR cimport HeatWallPFR
-from CanteraPFR cimport IsothermalPFR
-from CanteraPFR cimport SolvePFR
+from .CanteraPFR cimport AdiabaticPFR
+from .CanteraPFR cimport HeatWallPFR
+from .CanteraPFR cimport IsothermalPFR
+from .CanteraPFR cimport SolvePFR
 
 import os
 import time

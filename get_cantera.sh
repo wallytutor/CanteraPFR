@@ -5,7 +5,7 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 function gen_makeinc()
 {
-  makefile_in="${DIR}/CanteraPFR/Makefile.in"
+  makefile_in="${DIR}/Makefile.in"
 
   echo "********************************************************************"
   echo "Creating ${makefile_in}"
@@ -113,10 +113,11 @@ function build_cantera()
           scons build \
               prefix=${prefix} \
               python_package="none" \
-              f90_interface="n" \
+              python3_package="full" \
+              f90_interface="y" \
+              googletest="submodule" \
               system_eigen="n" \
               system_fmt="n" \
-              system_googletest="n" \
               system_sundials="n" \
               cxx_flags="${cxx_flags}";
               # FIXME path to blas_lapack_libs="openblas" \
@@ -135,6 +136,8 @@ function get_cantera()
 {
   echo "********************************************************************"
   echo "Trying to retrieve Cantera"
+  mkdir external
+  cd external
   git clone --recursive https://github.com/Cantera/cantera.git
   cd cantera
   git checkout tags/v2.4.0

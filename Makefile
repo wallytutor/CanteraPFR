@@ -4,16 +4,19 @@
 
 include Makefile.in
 
-SOURCES   := src/cpp
+SOURCES   := CanteraPFR/src/cpp
 SUNDIALS  := -lsundials_ida -lsundials_nvecserial
 CANTERA   := -L$(EXTERNAL)/lib $(SUNDIALS) -lcantera_shared
-INCLUDES  := -I$(EXTERNAL)/include -Iinclude
+INCLUDES  := -I$(EXTERNAL)/include -ICanteraPFR/include
 LIBRARIES := $(CANTERA) -lopenblas -pthread
 CPPFLAGS  := $(OPTIONS) -fPIC $(INCLUDES)
 CXX       := g++
 AR        := ar
 ARFLAGS   := sq
 RM        := rm -rf
+
+TEST      := CanteraPFR/test/main
+BINS      := CanteraPFR/bin
 
 ###############################################################################
 ##  CONVERT OBJECTS
@@ -29,25 +32,29 @@ BINARIES := xAdiabaticPFR xHeatWallPFR xIsothermalPFR
 
 .PHONY := all
 all: $(OBJECTS)
-	$(AR) $(ARFLAGS) lib/libCanteraPFR.a $(OBJECTS)
-	python setup.py install && cd doc; make html
+	$(AR) $(ARFLAGS) CanteraPFR/lib/libCanteraPFR.a $(OBJECTS)
+	python setup.py install && cd CanteraPFR/doc; make html
 
 test: $(BINARIES)
 
 xAdiabaticPFR: $(OBJECTS)
-	$(CXX) $(CPPFLAGS) test/main/xAdiabaticPFR.cpp src/cpp/AdiabaticPFR.o \
-	$(LIBRARIES) -o bin/xAdiabaticPFR
+	$(CXX) $(CPPFLAGS) $(TEST)/xAdiabaticPFR.cpp $(SOURCES)/AdiabaticPFR.o \
+	$(LIBRARIES) -o $(BINS)/xAdiabaticPFR
 
 xHeatWallPFR: $(OBJECTS)
-	$(CXX) $(CPPFLAGS) test/main/xHeatWallPFR.cpp src/cpp/HeatWallPFR.o \
-	$(LIBRARIES) -o bin/xHeatWallPFR
+	$(CXX) $(CPPFLAGS) $(TEST)/xHeatWallPFR.cpp $(SOURCES)/HeatWallPFR.o \
+	$(LIBRARIES) -o $(BINS)/xHeatWallPFR
 
 xIsothermalPFR: $(OBJECTS)
-	$(CXX) $(CPPFLAGS) test/main/xIsothermalPFR.cpp src/cpp/IsothermalPFR.o \
-	$(LIBRARIES) -o bin/xIsothermalPFR
+	$(CXX) $(CPPFLAGS) $(TEST)/xIsothermalPFR.cpp $(SOURCES)/IsothermalPFR.o \
+	$(LIBRARIES) -o $(BINS)/xIsothermalPFR
 
 clean:
 	$(RM) $(OBJECTS) build
 
 dist-clean: clean
-	$(RM) bin/* lib/*
+	$(RM) $(BINS)/* CanteraPFR/lib/*
+	cd CanteraPFR/doc && make clean
+
+clean-all: dist-clean
+	$(RM) external cygwin setup-x86_64.exe

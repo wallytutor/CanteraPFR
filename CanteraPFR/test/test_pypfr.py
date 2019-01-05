@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
 import numpy
-from CanteraPFR import PyPFR
-from CanteraPFR import plotPFR
+from CanteraPFR.CanteraPFR import PyPFR
+from CanteraPFR.CanteraAux import plotPFR
+
 
 mech = os.path.join(b"data", b"CT-hydrocarbon-dalmazsi-2017-mech.xml")
 # mech = os.path.join(b"data", b"CT-hydrocarbon-norinaga-2009-mech.cti")
