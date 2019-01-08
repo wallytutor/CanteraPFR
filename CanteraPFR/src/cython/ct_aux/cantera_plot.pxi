@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from matplotlib import pyplot as plt
-
 
 def plotPFR(data, species, saveas, **kwargs):
     """ Provide formated plot of results.
@@ -20,8 +18,10 @@ def plotPFR(data, species, saveas, **kwargs):
         saveas : path-like
             Path to graphics file.
         dpi : int, optional
-            Output resolution (parsed to plt.savefig). Default is 300.
+            Output resolution (parsed to pyplot.savefig). Default is 300.
     """
+
+    from matplotlib import pyplot
 
     cdef dict axes_default = {
         'x': 'Position ($\\mathrm{m}$)',
@@ -43,31 +43,31 @@ def plotPFR(data, species, saveas, **kwargs):
     cdef str Yaxis = 'Y'
     cdef str Taxis = 'T' if 'T' in data.columns else 'rho'
 
-    plt.close('all')
-    plt.style.use(style)
-    plt.figure(figsize=figsize)
+    pyplot.close('all')
+    pyplot.style.use(style)
+    pyplot.figure(figsize=figsize)
 
-    plt.subplot(221)
-    plt.plot(data[xaxis], data[Taxis])
-    plt.xlabel(axes[xaxis])
-    plt.ylabel(axes[Taxis])
+    pyplot.subplot(221)
+    pyplot.plot(data[xaxis], data[Taxis])
+    pyplot.xlabel(axes[xaxis])
+    pyplot.ylabel(axes[Taxis])
 
-    plt.subplot(222)
-    plt.plot(data[xaxis], data[uaxis])
-    plt.xlabel(axes[xaxis])
-    plt.ylabel(axes[uaxis])
+    pyplot.subplot(222)
+    pyplot.plot(data[xaxis], data[uaxis])
+    pyplot.xlabel(axes[xaxis])
+    pyplot.ylabel(axes[uaxis])
 
-    plt.subplot(223)
-    plt.plot(data[xaxis], data[paxis])
-    plt.xlabel(axes[xaxis])
-    plt.ylabel(axes[paxis])
+    pyplot.subplot(223)
+    pyplot.plot(data[xaxis], data[paxis])
+    pyplot.xlabel(axes[xaxis])
+    pyplot.ylabel(axes[paxis])
 
-    plt.subplot(224)
+    pyplot.subplot(224)
     for key, spec in species.items():
-        plt.plot(data[xaxis], data[key], label=spec)
-    plt.xlabel(axes[xaxis])
-    plt.ylabel(axes[Yaxis])
-    plt.legend()
+        pyplot.plot(data[xaxis], data[key], label=spec)
+    pyplot.xlabel(axes[xaxis])
+    pyplot.ylabel(axes[Yaxis])
+    pyplot.legend()
 
-    plt.tight_layout()
-    plt.savefig(saveas, dpi=dpi)
+    pyplot.tight_layout()
+    pyplot.savefig(saveas, dpi=dpi)

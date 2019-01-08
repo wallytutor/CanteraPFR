@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import cantera
-
 
 def _get_mu(gas, mu):
     """ Helper to retrieve viscosity. """

@@ -6,7 +6,7 @@ Build Cython interface to CanteraPFR.
 import os
 import sys
 from numpy import get_include
-from distutils.core import setup
+from setuptools import setup
 from distutils.extension import Extension
 from Cython.Build import cythonize
 
@@ -22,18 +22,28 @@ def get_platform():
 
 
 platform_abbr = get_platform()
+absdir = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
+basepath = os.path.join(absdir, 'external', platform_abbr)
 
-# TODO use __file__ as initial path to avoid weird stuff!
-basepath = os.path.abspath(os.path.join('external', platform_abbr))
+if not os.path.exists(basepath):
+    print('Assuming default path Cantera and Sundials')
+    basepath = ''
+
+install_requires = [
+    'numpy>=1.11.0',
+    'pandas>=0.23.4',
+    'matplotlib>=2.2.0',
+    'cantera>=2.4.0'
+]
 
 include_dirs = [
     get_include(),
     os.path.join(basepath, 'include'),
-    os.path.join('CanteraPFR', 'include')
+    os.path.join(absdir, 'CanteraPFR', 'include')
     ]
 
 extra_objects = [
-    os.path.join('CanteraPFR', 'lib', 'libCanteraPFR.a'),
+    os.path.join(absdir, 'CanteraPFR', 'lib', 'libCanteraPFR.a'),
     os.path.join(basepath, 'lib', 'libcantera.a'),
     os.path.join(basepath, 'lib', 'libsundials_ida.a'),
     os.path.join(basepath, 'lib', 'libsundials_nvecserial.a')
@@ -46,39 +56,48 @@ if platform_abbr == 'Nix':
 else:
     extra_link_args = []
 
-# FIXME add all packages here!
-# install_requires = ['numpy>=1.15.1']
-
 ext_modules = []
+
 ext_modules += [
     Extension(
-        name = 'CanteraPFR.CanteraPFR',
-        sources = [os.path.join('CanteraPFR', 'CanteraPFR.pyx')],
+        name = 'CanteraPFR.ct_pfr',
+        sources = [os.path.join('CanteraPFR', 'ct_pfr.pyx')],
         extra_compile_args = extra_compile_args,
         extra_objects = extra_objects,
         extra_link_args = extra_link_args,
         language = 'c++'
         )
     ]
+
 ext_modules += [
     Extension(
-        name = 'CanteraPFR.CanteraAux',
-        sources = [os.path.join('CanteraPFR', 'CanteraAux.pyx')],
+        name = 'CanteraPFR.ct_aux',
+        sources = [os.path.join('CanteraPFR', 'ct_aux.pyx')],
         )
     ]
+
+ext_modules += [
+    Extension(
+        name = 'CanteraPFR.ct_test',
+        sources = [os.path.join('CanteraPFR', 'ct_test.pyx')],
+        )
+    ]
+
+ext_modules = cythonize(ext_modules, build_dir='build', language_level=3)
 
 setup(
     name = 'CanteraPFR',
     packages = ['CanteraPFR'],
+    include_package_data = True,
+    install_requires = install_requires,
+    include_dirs = include_dirs,
+    ext_modules = ext_modules,
     author = 'Walter Dal\'Maz Silva',
     author_email = 'waltermateriais@gmail.com',
     description = 'Plug-flow reactor models',
+    keywords = 'kinetics reactor chemistry cantera transport',
     url = 'https://github.com/waltermateriais/CanteraPFR/',
     license = 'UNLICENSE',
-    version = '0.1.1',
-    include_dirs = include_dirs,
-    ext_modules = cythonize(ext_modules,
-                            build_dir = 'build',
-                            language_level = 3
-                            )
+    version = '0.1.2',
+    zip_safe = False
 )

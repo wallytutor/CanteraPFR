@@ -12,11 +12,13 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
-import os
-import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.pardir, os.pardir)))
-sys.path.append(os.path.abspath(os.path.join(os.pardir, os.pardir, os.pardir)))
-sys.setrecursionlimit(1500)
+# import os
+# import sys
+# sys.path.insert(0, os.path.abspath(os.path.join(os.pardir, os.pardir)))
+# sys.path.append(os.path.abspath(os.path.join(os.pardir, os.pardir, os.pardir)))
+# sys.setrecursionlimit(1500)
+
+import CanteraPFR
 
 # -- Project information -----------------------------------------------------
 
@@ -25,9 +27,9 @@ copyright = '2018, Walter Dal\'Maz Silva'
 author = 'Walter Dal\'Maz Silva'
 
 # The short X.Y version
-version = ''
+version = '.'.join(CanteraPFR.__version__.split('.')[:-1])
 # The full version, including alpha/beta/rc tags
-release = '0.1.0'
+release = CanteraPFR.__version__
 
 
 # -- General configuration ---------------------------------------------------

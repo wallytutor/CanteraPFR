@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from ctypes import addressof
-
 
 cdef class Closure:
     """ Just-in-time compiler for Python functions.
@@ -24,10 +22,14 @@ cdef class Closure:
 
     cdef object python_fun
     cdef object jit_wrap
+    cdef object addr
 
     def __cinit__(self, python_fun, ftype):
         self.python_fun = python_fun
         self.jit_wrap = ftype(lambda *args: self.python_fun(*args))
 
+        from ctypes import addressof
+        self.addr = addressof
+
     cdef func_t get_fun_ptr(self):
-        return (<func_t *><size_t>addressof(self.jit_wrap))[0]
+        return (<func_t *><size_t>self.addr(self.jit_wrap))[0]

@@ -1,7 +1,7 @@
 Dimensionless Numbers
 =====================
 
-.. module:: CanteraPFR.CanteraAux
+.. module:: CanteraPFR.ct_aux
 
 When dealing with reactor models, it is always useful to be able to quickly
 compute approximate dimensionless numbers for the studied case. In what follows

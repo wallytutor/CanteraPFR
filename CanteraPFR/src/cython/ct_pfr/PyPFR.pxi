@@ -1,16 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from .CanteraPFR cimport AdiabaticPFR
-from .CanteraPFR cimport HeatWallPFR
-from .CanteraPFR cimport IsothermalPFR
-from .CanteraPFR cimport SolvePFR
-
-import os
-import time
-import ctypes
-from numpy import arange
-from numpy import array
-from pandas import DataFrame
+from .ct_pfr cimport CanteraPFR
+from .ct_pfr cimport AdiabaticPFR
+from .ct_pfr cimport HeatWallPFR
+from .ct_pfr cimport IsothermalPFR
+from .ct_pfr cimport SolvePFR
 
 
 cdef class PyPFR:
@@ -104,6 +98,7 @@ cdef class PyPFR:
             del self.sol
 
     def _get_closure(self, Tw):
+        import ctypes
         ftype = ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)
 
         if isinstance(Tw, float):
@@ -235,13 +230,19 @@ cdef class PyPFR:
             Table of results for further manipulation.
         """
 
+        import time
+        from numpy import arange
+        from numpy import array
+        from pandas import DataFrame
+
         assert Lr > 0, 'Reactor length must be positive'
         assert dx > 0, 'Saving step must be positive'
         assert Lr > dx, 'Reactor length must be above saving step'
         assert outfreq > 0, 'Output frequency must be positive'
 
         if not overwrite:
-            assert not os.path.exists(saveas), 'Output file already exists'
+            from os.path import exists
+            assert not exists(saveas), 'Output file already exists'
 
         columns = self.sol.variablesNames()
         columns = ['x'] + [c.decode('utf-8') for c in columns]

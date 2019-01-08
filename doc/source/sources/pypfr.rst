@@ -54,8 +54,8 @@ Throughout the discussion the following symbols convention is adopted:
 - :math:`CV`: control volume, used as integration limit.
 - :math:`CS`: control surface, used as integration limit.
 
-Mass continuity
----------------
+Mass conservation
+-----------------
 
 Mass continuity equation in the absence of wall (source) terms can be derived
 by expanding steady state general compressible continuity equation
@@ -167,7 +167,7 @@ convective heat transfer coefficient set to zero in adiabatic limit.
 Reference API
 -------------
 
-.. module:: CanteraPFR.CanteraPFR
+.. module:: CanteraPFR.ct_pfr
 
 .. autoclass:: PyPFR
     :members:

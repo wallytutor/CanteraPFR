@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import os
-import cantera
-
 
 MECH = """\
 <?xml version="1.0"?>
@@ -55,8 +52,10 @@ def filter_mechanism(mech, species, transport='Multi', write=False,
         If `True` allows mechanism to be overwritten. Default is `False`.
     """
 
-    all_spec = cantera.Species.listFromFile(mech)
-    all_reac = cantera.Reaction.listFromFile(mech)
+    import cantera as ct
+
+    all_spec = ct.Species.listFromFile(mech)
+    all_reac = ct.Reaction.listFromFile(mech)
     all_elem = [k for s in all_spec for k in s.composition.keys()]
 
     elem = list(set(all_elem))
@@ -67,7 +66,8 @@ def filter_mechanism(mech, species, transport='Multi', write=False,
         assert idname is not None, 'A phase `id` must be provided'
         assert output is not None, 'An output file must be provided'
         if not overwrite:
-            assert not os.path.exists(output), 'Output fils already exists'
+            from os.path import exists
+            assert not exists(output), 'Output fils already exists'
 
         elem = ' '.join(sorted(elem))
         spec = ' '.join(sorted(species))
@@ -75,7 +75,7 @@ def filter_mechanism(mech, species, transport='Multi', write=False,
         with open(output, 'w') as writer:
             writer.write(MECH.format(idname, elem, mech, spec, transport))
 
-        return cantera.Solution(output)
+        return ct.Solution(output)
 
     for r in all_reac:
         if not all(si in species for si in r.reactants):
@@ -90,4 +90,4 @@ def filter_mechanism(mech, species, transport='Multi', write=False,
                     species=spec,
                     reactions=reac)
 
-    return cantera.Solution(**gas_conf)
+    return ct.Solution(**gas_conf)
