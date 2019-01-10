@@ -8,10 +8,12 @@ Welcome to CanteraPFR's documentation!
    :maxdepth: 2
    :caption: Package Contents:
 
-   sources/pypfr
-   sources/maxmixedness
-   sources/dimensionless
-   sources/interfaces
+   sources/ct_pfr/pypfr
+   sources/ct_pfr/maxmixedness
+   sources/ct_graph/DRG
+   sources/ct_aux/dimensionless
+   sources/ct_aux/interfaces
+   sources/ct_test
    sources/development
    sources/references
 

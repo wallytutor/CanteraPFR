@@ -6,7 +6,7 @@ def test_pypfr():
     from .ct_pfr import PyPFR
     from .ct_aux import plotPFR
 
-    mech = b"CT-hydrocarbon-dalmazsi-2017-mech.xml"
+    mech = b"CT-hydrocarbon-dalmazsi-2017-mech.cti"
     # mech = b"CT-hydrocarbon-norinaga-2009-mech.cti"
     phase = b"gas"
 

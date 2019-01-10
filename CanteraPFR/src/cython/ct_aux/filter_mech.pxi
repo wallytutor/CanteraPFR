@@ -28,7 +28,8 @@ def filter_mechanism(mech, species, transport='Multi', write=False,
     """ Filter mechanism to contain only selected species.
 
     Read mechanism and remove reactions involving species not required by
-    `species` list. Transport model if specified must be `'Multi'`.
+    `species` list. Transport model if specified must be `'Multi'`. If `species`
+    is `None`, the original mechanism is returned.
 
     Note
     ----
@@ -53,6 +54,9 @@ def filter_mechanism(mech, species, transport='Multi', write=False,
     """
 
     import cantera as ct
+
+    if species is None:
+        return ct.Solution(mech)
 
     all_spec = ct.Species.listFromFile(mech)
     all_reac = ct.Reaction.listFromFile(mech)

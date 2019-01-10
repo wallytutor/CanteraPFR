@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
-__all__ = ['plotPFR', 'Re', 'Pr', 'Sc', 'Pe', 'Gr', 'Ra', 'filter_mechanism']
+__all__ = ['plotPFR', 'plot_adjmatrix', 'plot_deghist',
+           'Re', 'Pr', 'Sc', 'Pe', 'Gr', 'Ra',
+           'filter_mechanism'
+           ]
 
 include 'src/cython/ct_aux/cantera_plot.pxi'
 include 'src/cython/ct_aux/dimensionless.pxi'

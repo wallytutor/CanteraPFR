@@ -29,9 +29,16 @@ OBJECTS  := $(patsubst $(SOURCES)/%.cpp,$(SOURCES)/%.o,$(SOBJECT))
 ###############################################################################
 
 .PHONY := all
-all: $(OBJECTS)
+all: cython docs
+
+cython: library
+	$(PYTHON) setup.py install
+
+docs: cython
+	cd docs; make html
+
+library: $(OBJECTS)
 	$(AR) $(ARFLAGS) CanteraPFR/lib/libCanteraPFR.a $(OBJECTS)
-	$(PYTHON) setup.py install && cd doc; make html
 
 clean:
 	$(RM) $(OBJECTS) build CanteraPFR.egg-info dist

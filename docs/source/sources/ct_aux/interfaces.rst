@@ -1,5 +1,5 @@
-Reference API
-=============
+Utilities
+=========
 
 .. module:: CanteraPFR.ct_aux
 
@@ -8,7 +8,11 @@ Graphical output
 
 .. autofunction:: plotPFR
 
-Utilities
----------
+.. autofunction:: plot_adjmatrix
+
+.. autofunction:: plot_deghist
+
+Auxiliary methods
+-----------------
 
 .. autofunction:: filter_mechanism

@@ -33,6 +33,7 @@ install_requires = [
     'numpy>=1.11.0',
     'pandas>=0.23.4',
     'matplotlib>=2.2.0',
+    'networkx>=2.1',
     'cantera>=2.4.0'
 ]
 
@@ -73,6 +74,13 @@ ext_modules += [
     Extension(
         name = 'CanteraPFR.ct_aux',
         sources = [os.path.join('CanteraPFR', 'ct_aux.pyx')],
+        )
+    ]
+
+ext_modules += [
+    Extension(
+        name = 'CanteraPFR.ct_graph',
+        sources = [os.path.join('CanteraPFR', 'ct_graph.pyx')],
         )
     ]
 
