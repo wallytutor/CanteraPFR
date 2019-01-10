@@ -1,0 +1,412 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Graph utilities &#8212; CanteraPFR 0.1.2 documentation</title>
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Dimensionless Numbers" href="../ct_aux/dimensionless.html" />
+    <link rel="prev" title="Maximum Mixedness Model" href="../ct_pfr/maxmixedness.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../ct_aux/dimensionless.html" title="Dimensionless Numbers"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../ct_pfr/maxmixedness.html" title="Maximum Mixedness Model"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CanteraPFR 0.1.2 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="graph-utilities">
+<h1>Graph utilities<a class="headerlink" href="#graph-utilities" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="base-class">
+<h2>Base Class<a class="headerlink" href="#base-class" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="CanteraPFR.ct_graph.BaseGraph">
+<em class="property">class </em><code class="descclassname">CanteraPFR.ct_graph.</code><code class="descname">BaseGraph</code><a class="headerlink" href="#CanteraPFR.ct_graph.BaseGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">networkx.classes.graph.Graph</span></code></p>
+<p>Base class for chemical graphs.</p>
+<p>This class should be initialized in derived classes by calling method
+<cite>_base_init</cite> after inheritance initilization. Its interface is described
+here instead of the <cite>__init__</cite> one.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>sol</strong> (<em>cantera.Solution</em>) – Solution object representing the kinetics mechanism.</li>
+<li><strong>fullfmt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If <cite>True</cite>, print all edges in mechanism</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="CanteraPFR.ct_graph.BaseGraph.adjacency_matrix">
+<code class="descname">adjacency_matrix</code><a class="headerlink" href="#CanteraPFR.ct_graph.BaseGraph.adjacency_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the adjacency matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The adjacency matrix of interacting nodes.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">numpy.array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CanteraPFR.ct_graph.BaseGraph.degree_histogram">
+<code class="descname">degree_histogram</code><a class="headerlink" href="#CanteraPFR.ct_graph.BaseGraph.degree_histogram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return of nodes degrees.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">List indexed by degree with the number of its occurences.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CanteraPFR.ct_graph.BaseGraph.density">
+<code class="descname">density</code><a class="headerlink" href="#CanteraPFR.ct_graph.BaseGraph.density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Graph density.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CanteraPFR.ct_graph.BaseGraph.ordered_degree">
+<code class="descname">ordered_degree</code><a class="headerlink" href="#CanteraPFR.ct_graph.BaseGraph.ordered_degree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns of nodes ordered by degree.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">List of pairs &lt;node, degree&gt;, ordered by degree.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CanteraPFR.ct_graph.BaseGraph.plot_adjmatrix">
+<code class="descname">plot_adjmatrix</code><a class="headerlink" href="#CanteraPFR.ct_graph.BaseGraph.plot_adjmatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interface to <a class="reference internal" href="../ct_aux/interfaces.html#CanteraPFR.ct_aux.plot_adjmatrix" title="CanteraPFR.ct_aux.plot_adjmatrix"><code class="xref py py-meth docutils literal notranslate"><span class="pre">CanteraPFR.ct_aux.plot_adjmatrix()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CanteraPFR.ct_graph.BaseGraph.plot_deghist">
+<code class="descname">plot_deghist</code><a class="headerlink" href="#CanteraPFR.ct_graph.BaseGraph.plot_deghist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interface to <a class="reference internal" href="../ct_aux/interfaces.html#CanteraPFR.ct_aux.plot_deghist" title="CanteraPFR.ct_aux.plot_deghist"><code class="xref py py-meth docutils literal notranslate"><span class="pre">CanteraPFR.ct_aux.plot_deghist()</span></code></a>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="directed-graph">
+<h2>Directed Graph<a class="headerlink" href="#directed-graph" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="CanteraPFR.ct_graph.DirectedGraph">
+<em class="property">class </em><code class="descclassname">CanteraPFR.ct_graph.</code><code class="descname">DirectedGraph</code><a class="headerlink" href="#CanteraPFR.ct_graph.DirectedGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">networkx.classes.digraph.DiGraph</span></code>, <a class="reference internal" href="#CanteraPFR.ct_graph.BaseGraph" title="CanteraPFR.ct_graph.BaseGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">CanteraPFR.ct_graph.BaseGraph</span></code></a></p>
+<p>Generate species directed relational graph.</p>
+<p>An edge is added for every pair of interacting species in a reaction. If
+<span class="math notranslate nohighlight">\(A\rightarrow{}B\)</span>, then a directed edge is added between these.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">No self loops <span class="math notranslate nohighlight">\((A\rightarrow{}A)\)</span> are generated in the graph.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>sol</strong> (<em>cantera.Solution</em>) – Solution object representing the kinetics mechanism.</li>
+<li><strong>fullfmt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite>, print all edges in mechanism. Default is <cite>False</cite>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="CanteraPFR.ct_graph.DirectedGraph.complexes">
+<code class="descname">complexes</code><a class="headerlink" href="#CanteraPFR.ct_graph.DirectedGraph.complexes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return complexes for building Feinberg–Horn–Jackson graph.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CanteraPFR.ct_graph.DirectedGraph.divide_edges">
+<code class="descname">divide_edges</code><a class="headerlink" href="#CanteraPFR.ct_graph.DirectedGraph.divide_edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Divide edges by function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>func</strong> (<em>function</em>) – Function used to increment edges <cite>weight</cite> property. This function
+takes the names of nodes <cite>A</cite> and <cite>B</cite> as arguments.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CanteraPFR.ct_graph.DirectedGraph.ordered_in_degree">
+<code class="descname">ordered_in_degree</code><a class="headerlink" href="#CanteraPFR.ct_graph.DirectedGraph.ordered_in_degree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns list of tuples (node, degree) ordered by degree.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">List of tuples of species and respective degree.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CanteraPFR.ct_graph.DirectedGraph.ordered_out_degree">
+<code class="descname">ordered_out_degree</code><a class="headerlink" href="#CanteraPFR.ct_graph.DirectedGraph.ordered_out_degree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns list of tuples (node, degree) ordered by degree.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">List of tuples of species and respective degree.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CanteraPFR.ct_graph.DirectedGraph.plot_adjmatrix">
+<code class="descname">plot_adjmatrix</code><a class="headerlink" href="#CanteraPFR.ct_graph.DirectedGraph.plot_adjmatrix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="CanteraPFR.ct_graph.DirectedGraph.reinitialize_graph">
+<code class="descname">reinitialize_graph</code><a class="headerlink" href="#CanteraPFR.ct_graph.DirectedGraph.reinitialize_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the value of property <cite>weight</cite> of all edges to zero.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CanteraPFR.ct_graph.DirectedGraph.sort_edges">
+<code class="descname">sort_edges</code><a class="headerlink" href="#CanteraPFR.ct_graph.DirectedGraph.sort_edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sort graph edges by key using a function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>func</strong> (<em>function</em>) – Function to provide ordering.</li>
+<li><strong>reverse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite>, returns in reverse order.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">List of edges ordered accoding to <cite>func</cite>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="CanteraPFR.ct_graph.DirectedGraph.update_edges">
+<code class="descname">update_edges</code><a class="headerlink" href="#CanteraPFR.ct_graph.DirectedGraph.update_edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update edges values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>src</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – List of source nodes names.</li>
+<li><strong>dst</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – List of destination nodes names.</li>
+<li><strong>func</strong> (<em>function</em>) – Function used to increment edges <cite>weight</cite> property. This function
+takes the names of nodes <cite>A</cite> and <cite>B</cite> as arguments.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="undirected-graph">
+<h2>Undirected Graph<a class="headerlink" href="#undirected-graph" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="CanteraPFR.ct_graph.UndirectedGraph">
+<em class="property">class </em><code class="descclassname">CanteraPFR.ct_graph.</code><code class="descname">UndirectedGraph</code><a class="headerlink" href="#CanteraPFR.ct_graph.UndirectedGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#CanteraPFR.ct_graph.BaseGraph" title="CanteraPFR.ct_graph.BaseGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">CanteraPFR.ct_graph.BaseGraph</span></code></a></p>
+<p>Generate species undirected relational graph.</p>
+<p>An edge is added for every pair of species in a reaction.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">No self loops <span class="math notranslate nohighlight">\((A\rightarrow{}A)\)</span> are generated in the graph.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>sol</strong> (<em>cantera.Solution</em>) – Solution object representing the kinetics mechanism.</li>
+<li><strong>fullfmt</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite>, print all edges in mechanism. Default is <cite>False</cite>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="analysis-tools">
+<h2>Analysis tools<a class="headerlink" href="#analysis-tools" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="CanteraPFR.ct_graph.analyse_graph">
+<code class="descclassname">CanteraPFR.ct_graph.</code><code class="descname">analyse_graph</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CanteraPFR.ct_graph.analyse_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Automatic analysis of species graph.</p>
+<p>This method provides a preliminary mechanism species graph analysis.
+It is able to filter species and reactions from a species file and
+perform analysis of simpler versions of a mechanism.  An input file
+and graph type are required inputs.  Optional arguments are the base
+name to save the resulting files and the list of species to filter
+the mechanism.  Graph species connection degree output is supplied
+as well as a basic report with the number of nodes, edges and density.
+Plots adjacency matrix graph histogram.</p>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">Document keyword arguments.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>mech</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Mechanism file path in Cantera’s format.</li>
+<li><strong>graph_class</strong> (<a class="reference internal" href="#CanteraPFR.ct_graph.BaseGraph" title="CanteraPFR.ct_graph.BaseGraph"><em>BaseGraph</em></a>) – Graph class to be used.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Return generated graph with derived type <cite>graph_class</cite>.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#CanteraPFR.ct_graph.BaseGraph" title="CanteraPFR.ct_graph.BaseGraph">BaseGraph</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Graph utilities</a><ul>
+<li><a class="reference internal" href="#base-class">Base Class</a></li>
+<li><a class="reference internal" href="#directed-graph">Directed Graph</a></li>
+<li><a class="reference internal" href="#undirected-graph">Undirected Graph</a></li>
+<li><a class="reference internal" href="#analysis-tools">Analysis tools</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../ct_pfr/maxmixedness.html"
+                        title="previous chapter">Maximum Mixedness Model</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../ct_aux/dimensionless.html"
+                        title="next chapter">Dimensionless Numbers</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/sources/ct_graph/DRG.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../ct_aux/dimensionless.html" title="Dimensionless Numbers"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../ct_pfr/maxmixedness.html" title="Maximum Mixedness Model"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CanteraPFR 0.1.2 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Walter Dal&#39;Maz Silva.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.9.
+    </div>
+  </body>
+</html>

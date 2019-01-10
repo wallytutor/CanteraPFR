@@ -1,0 +1,376 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Dimensionless Numbers &#8212; CanteraPFR 0.1.2 documentation</title>
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Utilities" href="interfaces.html" />
+    <link rel="prev" title="Graph utilities" href="../ct_graph/DRG.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="interfaces.html" title="Utilities"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../ct_graph/DRG.html" title="Graph utilities"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CanteraPFR 0.1.2 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-CanteraPFR.ct_aux">
+<span id="dimensionless-numbers"></span><h1>Dimensionless Numbers<a class="headerlink" href="#module-CanteraPFR.ct_aux" title="Permalink to this headline">¶</a></h1>
+<p>When dealing with reactor models, it is always useful to be able to quickly
+compute approximate dimensionless numbers for the studied case. In what follows
+we provide a brief description of these quantities as implemented in this
+package. Definitions might vary according to the author or field of application
+and here we follow solely <a class="reference internal" href="../references.html#ref-2" id="id1">[Ref.2]</a>.</p>
+<div class="section" id="reynolds-number">
+<h2>Reynolds Number<a class="headerlink" href="#reynolds-number" title="Permalink to this headline">¶</a></h2>
+<p><em>This dimensionless group is named for Osborne Reynolds (1842-1912), professor
+of engineering at the University of Manchester. He studied the laminar-turbulent
+transition, turbulent heat transfer, and theory of lubrication</em> <a class="reference internal" href="../references.html#ref-2" id="id2">[Ref.2]</a>. In
+general we denote Reynolds number by <span class="math notranslate nohighlight">\(\mathrm{Re}\)</span> and it is used to
+delineate flow regimes. For circular tubes it is defined as:</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{Re} = \frac{\rho \langle v_{z} \rangle D}{\mu}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\langle v_{z} \rangle\)</span> is the average flow velocity in axial
+direction and <span class="math notranslate nohighlight">\(D\)</span> is the tube diameter. For values up 2100 the flow is
+assumed laminar if steady state is established and density is constant. For
+more, see <a class="reference internal" href="../references.html#ref-2" id="id3">[Ref.2]</a>, Chapter 2.</p>
+<dl class="function">
+<dt id="CanteraPFR.ct_aux.Re">
+<code class="descclassname">CanteraPFR.ct_aux.</code><code class="descname">Re</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CanteraPFR.ct_aux.Re" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Reynolds number.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>gas</strong> (<em>cantera.Solution</em>) – Gas phase with transport properties. If transport manager does not
+implement dynamic viscosity, this shall be provided through <cite>mu</cite>.</li>
+<li><strong>U</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Fluid velocity in meters per second.</li>
+<li><strong>D</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Problem characteristic diameter in meters.</li>
+<li><strong>mu</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Dynamic viscosity in pascal times second. Default is None.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AssertionError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">AssertionError</span></code></a> – If gas has no transport manager and <cite>mu</cite> was not supplied.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Reynolds number.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="prandtl-and-schmidt-numbers">
+<h2>Prandtl and Schmidt Numbers<a class="headerlink" href="#prandtl-and-schmidt-numbers" title="Permalink to this headline">¶</a></h2>
+<p><em>Ludwig Prandtl (1875-1953) (pronounced “Prahn-t’), who taught in Hannover and
+Gottingen and later served as the Director of the Kaiser Wilhelm Institute for
+Fluid Dynamics, was one of the people who shaped the future of his field at the
+beginning of the twentieth century; he made contributions to turbulent flow and
+heat transfer, but his development of the boundary-layer equations was his
+crowning achievement</em> <a class="reference internal" href="../references.html#ref-2" id="id4">[Ref.2]</a>. The dimensionless quantity appear under two
+forms of interest for the analysis of reactors: its thermal and its chemical
+versions. In thermal version, this number compares the kinematic viscosity
+<span class="math notranslate nohighlight">\(nu\)</span> to the thermal diffusivity <span class="math notranslate nohighlight">\(\alpha\)</span>, which is replaced by
+species diffusivity in its chemical version, which is more often referred to as
+Schmidt number. <em>Ernst Heinrich Wilhelm Schmidt (1892-1975), who taught at
+the universities in Gdansk, Braunschweig, and Munich (where he was the
+successor to Nusselt)</em> <a class="reference internal" href="../references.html#ref-2" id="id5">[Ref.2]</a>. The ratio <span class="math notranslate nohighlight">\(\frac{\nu}{\alpha}\)</span> indicates
+the relative ease of momentum and energy or species transport in flow systems.
+This dimensionless ratio in thermal form is given by</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{Pr} = \frac{\nu}{\alpha} = \frac{C_{p} \mu}{k}\]</div>
+<p>If transport properties for a gas are not available, thermal Prandtl number can
+be estimated at low pressure and non-polar molecules mixtures with help of
+Eucken formula as</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{Pr} = \frac{C_{p}}{C_{p} + \frac{5}{4}R}\]</div>
+<p>Schmidt number range can be much broader than its thermal relative, Prandtl
+number. This is given by the effects of cross-section and molar weight
+determining mass diffusivity of gas species. Since this number is always defined
+for a pair of species, here we will try to make it more general by using the
+mixture averaged diffusion coefficients as provided by Cantera’s <cite>Transport</cite>
+method <cite>mix_diff_coeffs</cite>.</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{Sc}_{min,max} = \frac{\nu}{D_{min,max}}\]</div>
+<p>For more, see <a class="reference internal" href="../references.html#ref-2" id="id6">[Ref.2]</a>, Chapter 9.</p>
+<dl class="function">
+<dt id="CanteraPFR.ct_aux.Pr">
+<code class="descclassname">CanteraPFR.ct_aux.</code><code class="descname">Pr</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CanteraPFR.ct_aux.Pr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Prandtl number.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>gas</strong> (<em>cantera.Solution</em>) – Gas phase with transport properties. If transport manager does not
+implement dynamic viscosity, this shall be provided through <cite>mu</cite>.</li>
+<li><strong>mu</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Dynamic viscosity in pascal times second. Default is <cite>None</cite>.</li>
+<li><strong>k</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Conductivity in watts per meter times kelvin. Default is <cite>None</cite>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AssertionError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">AssertionError</span></code></a> – If gas has no transport manager and <cite>mu</cite> was not supplied.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Prandtl number.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="CanteraPFR.ct_aux.Sc">
+<code class="descclassname">CanteraPFR.ct_aux.</code><code class="descname">Sc</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CanteraPFR.ct_aux.Sc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Schmidt number.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>gas</strong> (<em>cantera.Solution</em>) – Gas phase with transport properties. If transport manager does not
+implement dynamic viscosity, this shall be provided through <cite>mu</cite>.</li>
+<li><strong>mu</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Dynamic viscosity in pascal times second. Default is <cite>None</cite>.</li>
+<li><strong>Dab</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Species diffusivity in square meters per second. Default is <cite>None</cite>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AssertionError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">AssertionError</span></code></a> – If gas has no transport manager and <cite>mu</cite> or <cite>Dab</cite> were not supplied.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Minimum and maximum Schmidt number.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)">tuple</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="peclet-number">
+<h2>Péclet Number<a class="headerlink" href="#peclet-number" title="Permalink to this headline">¶</a></h2>
+<p><em>Jean-Claude-Eugene Peclet (pronounced “Pay-clay” with the second syllable
+accented) (1793-1857) authored several books including one on heat conduction</em>
+<a class="reference internal" href="../references.html#ref-2" id="id7">[Ref.2]</a>. This number is nothing more than the multiplication of Reynolds and
+Prandtl or Schmidt numbers. By simplifying factors one easily determines that
+it represents the ratio of convective by diffusive transport (thermal or
+species). High <span class="math notranslate nohighlight">\(\mathrm{Pe}\)</span> limit represents the plug-flow behavior.</p>
+<div class="math notranslate nohighlight">
+\[\mathrm{Pe}_{th} = \mathrm{Re} \mathrm{Pr}\qquad
+\mathrm{Pe}_{ch} = \mathrm{Re} \mathrm{Sc}\]</div>
+<dl class="function">
+<dt id="CanteraPFR.ct_aux.Pe">
+<code class="descclassname">CanteraPFR.ct_aux.</code><code class="descname">Pe</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CanteraPFR.ct_aux.Pe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Peclet numbers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>gas</strong> (<em>cantera.Solution</em>) – Gas phase with transport properties. If transport manager does not
+implement dynamic viscosity, this shall be provided through <cite>mu</cite>.</li>
+<li><strong>U</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Fluid velocity in meters per second.</li>
+<li><strong>D</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Problem characteristic diameter in meters.</li>
+<li><strong>mu</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Dynamic viscosity in pascal times second. Default is <cite>None</cite>.</li>
+<li><strong>Dab</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Species diffusivity in square meters per second. Default is <cite>None</cite>.</li>
+<li><strong>k</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Conductivity in watts per meter times kelvin. Default is <cite>None</cite>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A tuple containing the thermal Peclet number and another tuple with
+the minimum and maximum chemical Peclet numbers.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)">tuple</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="grashof-number">
+<h2>Grashof Number<a class="headerlink" href="#grashof-number" title="Permalink to this headline">¶</a></h2>
+<p><em>Franz Grashof (1826-1893) (pronounced “Grahss-hoff). He was professor of
+applied mechanics in Karlsruhe and one of the founders of the Verein Deutscher
+Ingenieure in 1856</em> <a class="reference internal" href="../references.html#ref-2" id="id8">[Ref.2]</a>. The Grashof number is the characteristic group
+occurring in analyses of free convection. It approximates the ratio of the
+buoyancy to viscous force acting on a fluid.</p>
+<p><strong>TODO: implement diffusional Gr. The diffusional Grashof number arises because
+of the buoyant force caused by the concentration inhomogeneities.</strong></p>
+<div class="math notranslate nohighlight">
+\[\mathrm{Gr} = \frac{g\beta l^{3} \Delta T}{\nu^{2}}\]</div>
+<dl class="function">
+<dt id="CanteraPFR.ct_aux.Gr">
+<code class="descclassname">CanteraPFR.ct_aux.</code><code class="descname">Gr</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CanteraPFR.ct_aux.Gr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Grashof number.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>D</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Problem characteristic diameter in meters.</li>
+<li><strong>Tw</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Pipe wall temperature in kelvin.</li>
+<li><strong>mu</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Dynamic viscosity in pascal times second. Default is <cite>None</cite>.</li>
+<li><strong>g</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Gravity acceleration in meters per square second. Default is <cite>9.81</cite>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AssertionError" title="(in Python v3.7)"><code class="xref py py-exc docutils literal notranslate"><span class="pre">AssertionError</span></code></a> – If gas has no transport manager and <cite>mu</cite> was not supplied.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Grashof number.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="rayleigh-number">
+<h2>Rayleigh Number<a class="headerlink" href="#rayleigh-number" title="Permalink to this headline">¶</a></h2>
+<p>Rayleigh number is the multiplication of Grashof and Prandtl numbers.
+See <a class="reference external" href="https://en.wikipedia.org/wiki/Rayleigh_number">Rayleigh</a>.</p>
+<dl class="function">
+<dt id="CanteraPFR.ct_aux.Ra">
+<code class="descclassname">CanteraPFR.ct_aux.</code><code class="descname">Ra</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CanteraPFR.ct_aux.Ra" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns Rayleigh number.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>D</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Problem characteristic diameter in meters.</li>
+<li><strong>Tw</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Pipe wall temperature in kelvin.</li>
+<li><strong>mu</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Dynamic viscosity in pascal times second. Default is <cite>None</cite>.</li>
+<li><strong>k</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Conductivity in watts per meter times kelvin. Default is <cite>None</cite>.</li>
+<li><strong>g</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><em>optional</em>) – Gravity acceleration in meters per square second. Default is <cite>9.81</cite>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Rayleigh number.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Dimensionless Numbers</a><ul>
+<li><a class="reference internal" href="#reynolds-number">Reynolds Number</a></li>
+<li><a class="reference internal" href="#prandtl-and-schmidt-numbers">Prandtl and Schmidt Numbers</a></li>
+<li><a class="reference internal" href="#peclet-number">Péclet Number</a></li>
+<li><a class="reference internal" href="#grashof-number">Grashof Number</a></li>
+<li><a class="reference internal" href="#rayleigh-number">Rayleigh Number</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../ct_graph/DRG.html"
+                        title="previous chapter">Graph utilities</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="interfaces.html"
+                        title="next chapter">Utilities</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/sources/ct_aux/dimensionless.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="interfaces.html" title="Utilities"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../ct_graph/DRG.html" title="Graph utilities"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CanteraPFR 0.1.2 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Walter Dal&#39;Maz Silva.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.9.
+    </div>
+  </body>
+</html>

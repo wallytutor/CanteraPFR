@@ -1,0 +1,224 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Utilities &#8212; CanteraPFR 0.1.2 documentation</title>
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Test methods" href="../ct_test.html" />
+    <link rel="prev" title="Dimensionless Numbers" href="dimensionless.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../ct_test.html" title="Test methods"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="dimensionless.html" title="Dimensionless Numbers"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CanteraPFR 0.1.2 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-CanteraPFR.ct_aux">
+<span id="utilities"></span><h1>Utilities<a class="headerlink" href="#module-CanteraPFR.ct_aux" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="graphical-output">
+<h2>Graphical output<a class="headerlink" href="#graphical-output" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="CanteraPFR.ct_aux.plotPFR">
+<code class="descclassname">CanteraPFR.ct_aux.</code><code class="descname">plotPFR</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CanteraPFR.ct_aux.plotPFR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provide formated plot of results.</p>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">Document keyword arguments.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data</strong> (<em>pandas.DataFrame</em>) – Table of integration solution.</li>
+<li><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Dictionary of species to plot. Keys must match columns of <cite>data</cite>
+and values are used as labels (for allowing LaTeX names).</li>
+<li><strong>saveas</strong> (<em>path-like</em>) – Path to graphics file.</li>
+<li><strong>dpi</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – Output resolution (parsed to pyplot.savefig). Default is 300.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="CanteraPFR.ct_aux.plot_adjmatrix">
+<code class="descclassname">CanteraPFR.ct_aux.</code><code class="descname">plot_adjmatrix</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CanteraPFR.ct_aux.plot_adjmatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot adjacency matrix of graph.</p>
+<div class="admonition-todo admonition" id="index-1">
+<p class="first admonition-title">Todo</p>
+<p class="last">Document keyword arguments.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>graph</strong> (<em>CanteraPFR.ct_pfr.BaseGraph</em>) – Source graph</li>
+<li><strong>saveas</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Path to save file. Returns <cite>None</cite> if file exists.</li>
+<li><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite> allows plot to be overwritten. Default is <cite>False</cite>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="CanteraPFR.ct_aux.plot_deghist">
+<code class="descclassname">CanteraPFR.ct_aux.</code><code class="descname">plot_deghist</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CanteraPFR.ct_aux.plot_deghist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot degrees of graph nodes.</p>
+<div class="admonition-todo admonition" id="index-2">
+<p class="first admonition-title">Todo</p>
+<p class="last">Document keyword arguments.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>graph</strong> (<em>CanteraPFR.ct_pfr.BaseGraph</em>) – Source graph</li>
+<li><strong>saveas</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Path to save file. Returns <cite>None</cite> if file exists.</li>
+<li><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite> allows plot to be overwritten. Default is <cite>False</cite>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="auxiliary-methods">
+<h2>Auxiliary methods<a class="headerlink" href="#auxiliary-methods" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="CanteraPFR.ct_aux.filter_mechanism">
+<code class="descclassname">CanteraPFR.ct_aux.</code><code class="descname">filter_mechanism</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#CanteraPFR.ct_aux.filter_mechanism" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter mechanism to contain only selected species.</p>
+<p>Read mechanism and remove reactions involving species not required by
+<cite>species</cite> list. Transport model if specified must be <cite>‘Multi’</cite>. If <cite>species</cite>
+is <cite>None</cite>, the original mechanism is returned.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">To date transport model <cite>‘Mix’</cite> has not being implemented.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>mech</strong> (<em>path-like</em>) – Mechanism file in CTI/XML format.</li>
+<li><strong>species</strong> (<em>list of str</em>) – List of required species. Case must match with mechanism.</li>
+<li><strong>transport</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>optional</em>) – Transport model to use. Default is <cite>‘Multi’</cite>.</li>
+<li><strong>write</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite>, write XML filtering mechanism.</li>
+<li><strong>idname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>optional</em>) – Name of new phase. Required if <cite>write=True</cite>. Default is <cite>None</cite>.</li>
+<li><strong>output</strong> (<em>path-like</em><em>, </em><em>optional</em>) – Path to new mechanism. Required if <cite>write=True</cite>. Default is <cite>None</cite>.</li>
+<li><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – If <cite>True</cite> allows mechanism to be overwritten. Default is <cite>False</cite>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Utilities</a><ul>
+<li><a class="reference internal" href="#graphical-output">Graphical output</a></li>
+<li><a class="reference internal" href="#auxiliary-methods">Auxiliary methods</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="dimensionless.html"
+                        title="previous chapter">Dimensionless Numbers</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../ct_test.html"
+                        title="next chapter">Test methods</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/sources/ct_aux/interfaces.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../ct_test.html" title="Test methods"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="dimensionless.html" title="Dimensionless Numbers"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CanteraPFR 0.1.2 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Walter Dal&#39;Maz Silva.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.9.
+    </div>
+  </body>
+</html>
