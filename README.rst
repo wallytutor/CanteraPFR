@@ -10,7 +10,7 @@ Installation
 
 For detailed instructions, read `INSTALL`_.
 
-.. INSTALL: INSTALL.rst.
+.. INSTALL: https://github.com/waltermateriais/CanteraPFR/blob/master/INSTALL.rst
 
 Linux
 -----
