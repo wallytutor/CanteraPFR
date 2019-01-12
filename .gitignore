@@ -25,7 +25,7 @@ setup-x86_64.exe
 
 # Local builds.
 /build/
-/docs/build/doctrees/*
+/docs/build/*
 /CanteraPFR/lib/*
 /external/*
 

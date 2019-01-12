@@ -23,8 +23,8 @@ MECH = """\
 """
 
 
-def filter_mechanism(mech, species, transport='Multi', write=False,
-                     idname=None, output=None, overwrite=False):
+def filter_mechanism(mech, species_filter, transport='Multi', write=False,
+                     idname=None, output=None, overwrite=False, **kwargs):
     """ Filter mechanism to contain only selected species.
 
     Read mechanism and remove reactions involving species not required by
@@ -55,7 +55,7 @@ def filter_mechanism(mech, species, transport='Multi', write=False,
 
     import cantera as ct
 
-    if species is None:
+    if species_filter is None:
         return ct.Solution(mech)
 
     all_spec = ct.Species.listFromFile(mech)
@@ -63,7 +63,7 @@ def filter_mechanism(mech, species, transport='Multi', write=False,
     all_elem = [k for s in all_spec for k in s.composition.keys()]
 
     elem = list(set(all_elem))
-    spec = [s for s in all_spec if s.name in species]
+    spec = [s for s in all_spec if s.name in species_filter]
     reac = []
 
     if write:
@@ -74,7 +74,7 @@ def filter_mechanism(mech, species, transport='Multi', write=False,
             assert not exists(output), 'Output fils already exists'
 
         elem = ' '.join(sorted(elem))
-        spec = ' '.join(sorted(species))
+        spec = ' '.join(sorted(species_filter))
 
         with open(output, 'w') as writer:
             writer.write(MECH.format(idname, elem, mech, spec, transport))
@@ -82,9 +82,9 @@ def filter_mechanism(mech, species, transport='Multi', write=False,
         return ct.Solution(output)
 
     for r in all_reac:
-        if not all(si in species for si in r.reactants):
+        if not all(si in species_filter for si in r.reactants):
             continue
-        if not all(si in species for si in r.products):
+        if not all(si in species_filter for si in r.products):
             continue
         reac.append(r)
 

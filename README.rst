@@ -1,14 +1,17 @@
-# CanteraPFR
+CanteraPFR
+==========
 
 Provides several variations of a plug-flow reactor (PFR) model constructed over
 Cantera framework of chemical kinetics. These models range from isothermal to
 predefined wall profiles variations of PFR.
 
-# Installation
+Installation
+============
 
-For detailed instructions, read [INSTALL.md](INSTALL.md).
+For detailed instructions, read [INSTALL.rst](INSTALL.rst).
 
-## Linux
+Linux
+-----
 
 Tested on Ubuntu 18.04.
 
@@ -18,7 +21,8 @@ manager.
 1. Run `./get_cantera.sh` and wait for completion.
 1. Run `make` and wait for completion.
 
-## Cygwin (Windows)
+Cygwin (Windows)
+----------------
 
 Tested on Windows 10.
 
@@ -27,7 +31,8 @@ Tested on Windows 10.
 1. In terminal, move to this directory with `cd`.
 1. Run `make` and wait for completion.
 
-# Documentation
+Documentation
+=============
 
 **Only after building the project, otherwise Sphinx will not be able to import!**
 
@@ -36,7 +41,8 @@ run `make`. This will provide a list of types you can compile the documentation.
 The default format is `make html` and this is already compiled with library is
 built. Documentation will be generated under `CanteraPFR/doc/build/<type>`.
 
-# Contribute
+Contribute
+==========
 
 Please do not hesitate to contact me if you have suggestions or wish to request
 new functionalities. I still have a lot of materials from my PhD to organize
@@ -47,7 +53,8 @@ and an automatic skeletal mechanism generation with DRG method.
 
 Email: waltermateriais@gmail.com
 
-# Limitations
+Limitations
+===========
 
 1. Cantera shared library failed on Cygwin!
 1. For some weird reason Sundials 3.1.0 does not work with Cython modules (although

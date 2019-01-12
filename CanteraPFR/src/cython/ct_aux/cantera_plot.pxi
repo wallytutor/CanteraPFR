@@ -73,7 +73,7 @@ def plotPFR(data, species, saveas, **kwargs):
     pyplot.savefig(saveas, dpi=dpi)
 
 
-def plot_adjmatrix(graph, saveas, overwrite=True, **kwargs):
+def plot_adjmatrix(adjmat, saveas, overwrite=True, **kwargs):
     """ Plot adjacency matrix of graph.
 
     TODO
@@ -82,15 +82,14 @@ def plot_adjmatrix(graph, saveas, overwrite=True, **kwargs):
 
     Parameters
     ----------
-    graph : CanteraPFR.ct_pfr.BaseGraph
-        Source graph
+    adjmat : array-like
+        Source graph's adjacency matrix.
     saveas : str
         Path to save file. Returns `None` if file exists.
     overwrite : bool, optional
         If `True` allows plot to be overwritten. Default is `False`.
     """
 
-    from networkx import to_numpy_matrix
     from matplotlib import pyplot
 
     if not overwrite:
@@ -103,14 +102,14 @@ def plot_adjmatrix(graph, saveas, overwrite=True, **kwargs):
 
     pyplot.close('all')
     fig, ax = pyplot.subplots(figsize=figsize)
-    ax.imshow(to_numpy_matrix(graph), cmap=cmap)
+    ax.imshow(adjmat, cmap=cmap)
     ax.axes.get_xaxis().set_visible(False)
     ax.axes.get_yaxis().set_visible(False)
     fig.subplots_adjust(top=1.0, bottom=0.0, right=1.0, left=0.0)
     pyplot.savefig(saveas, dpi=dpi)
 
 
-def plot_deghist(graph, saveas, overwrite=False, **kwargs):
+def plot_deghist(deghist, saveas, overwrite=False, **kwargs):
     """ Plot degrees of graph nodes.
 
     TODO
@@ -119,8 +118,8 @@ def plot_deghist(graph, saveas, overwrite=False, **kwargs):
 
     Parameters
     ----------
-    graph : CanteraPFR.ct_pfr.BaseGraph
-        Source graph
+    deghist : array-like
+        Source graph degree histogram intensities.
     saveas : str
         Path to save file. Returns `None` if file exists.
     overwrite : bool, optional
@@ -128,7 +127,6 @@ def plot_deghist(graph, saveas, overwrite=False, **kwargs):
     """
 
     from numpy import arange
-    from networkx import degree_histogram
     from matplotlib import pyplot
     from matplotlib.ticker import MaxNLocator
 
@@ -142,9 +140,8 @@ def plot_deghist(graph, saveas, overwrite=False, **kwargs):
     cdef dict xlim = kwargs.get('xlim', None)
 
     pyplot.close('all')
-    deghis = degree_histogram(graph)
     fig, ax = pyplot.subplots(figsize=figsize)
-    ax.bar(arange(0, len(deghis), 1), deghis, color=color)
+    ax.bar(arange(0, len(deghist), 1), deghist, color=color)
     ax.set_xlabel('Degree')
     ax.set_ylabel('Counts')
     if xlim is not None:

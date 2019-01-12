@@ -1,709 +1,490 @@
 # -*- coding: utf-8 -*-
-from .ct_aux import plot_adjmatrix
-from .ct_aux import plot_deghist
 from .ct_aux import filter_mechanism
 
 import os
-import itertools
+import csv
+import glob
+import time
 import numpy
+import cantera
 import networkx
-from itertools import combinations
-from cantera import Solution
+from itertools import product
+from matplotlib import pyplot
+from pandas import read_csv
 
-class BaseGraph(networkx.Graph):
-    """ Base class for chemical graphs.
 
-    This class should be initialized in derived classes by calling method
-    `_base_init` after inheritance initilization. Its interface is described
-    here instead of the `__init__` one.
+class StateSpace(object):
+    """ Represent the initial state space for mechanism simplification.
+
+    The lists provided by this data class are provided an internal product for
+    generation of all possible combinations of initial states.
+    """
+
+    T: list = None
+    P: list = None
+    X: list = None
+
+    def __add__(self, other):
+        """ Add generated iterator.
+
+        Note
+        ----
+        This method does not add the initial lists, but the iterators created
+        by this and another instance. This is useful when another region of
+        sample states is desired but one does not wish to cross with the other
+        conditions provided by the current instance.
+        """
+        pass
+
+    def __iter__(self):
+        pass
+
+
+class SimplifySetup(object):
+    start_set: list = None
+    plot_spec: list = None
+    space: StateSpace = None
+    integ: float = None
+    nsimp: int = None
+    threshold_min: float = None
+    threshold_max: float = None
+    species_filter: list = None
+    dir_name: str = None
+
+    def validate(self):
+        assert self.start_set is not None,\
+            'Missing species start set'
+        assert self.threshold_max > self.threshold_min,\
+            f'Threshold: max {self.threshold_max} <= min {self.threshold_min}'
+
+
+class SimplifyDRG(object):
+    """ Apply DRG approach to mechanism simplification.
+
+    Reference
+    ---------
+    Tianfeng Lu and Chung K. Law. On the applicability of directed relation
+    graphs to the reduction of reaction mechanism. Combustion and Flame.
+    vol. 146, no. 3, pp. 472-483, 2006.
 
     Parameters
     ----------
-    sol : cantera.Solution
-        Solution object representing the kinetics mechanism.
-    fullfmt : bool
-        If `True`, print all edges in mechanism
+    graph : DirectedGraph
+        Directed graph of kinetic mechanism.
+    start_set: list
+        List of species to keep in simplified version.
     """
 
-    def __init__(self):
-        super(BaseGraph, self).__init__()
+    def __init__(self, graph, start_set):
+        self._graph = graph
+        self._start = list(set(start_set))
 
-    def _base_init(self, sol, fullfmt):
-        self._sol = sol
-        self._fullfmt = fullfmt
-        self.add_nodes_from(self._sol.species_names)
+        nu_prods = graph.solution.product_stoich_coeffs()
+        nu_reacs = graph.solution.reactant_stoich_coeffs()
 
-    def __str__(self):
-        """ Formatted string representation. """
+        self._names = graph.solution.species_names
+        self._reactions = graph.solution.reactions()
 
-        basefmt = (f' {self.__class__.__name__} object\n'
-                   f' -- Size   : {self.size()}\n'
-                   f' -- Order  : {self.order()}\n')
+        self._nu = nu_prods - nu_reacs
+        self._nu_dict = {s: n for s, n in zip(self._names, self._nu)}
 
-        def more(edges):
-            more = map(lambda e: f' {e[0]:>20s} - {e[1]:s}\n', edges)
-            # extra = [' {:>20s} - {:s}\n'.format(*e) for e in self.edges()]
-            return ''.join(more)
+    def _update_graph(self, den_dict, rates):
+        """ Update relational graph edges weights.
 
-        return (basefmt + '' if not self._fullfmt else more(self.edges()))
+        TODO
+        ----
+        This method has much to be optimized!
 
-    def adjacency_matrix(self):
-        """ Returns the adjacency matrix.
-
-        Returns
-        -------
-        numpy.array
-            The adjacency matrix of interacting nodes.
+        Parameters
+        ----------
+        den_dict: dict
+            Dictionary of denominators for species `abs(del_nu * omega)`.
+        rates: array-like
+            Reaction rates array.
         """
 
-        return networkx.to_numpy_matrix(self)
+        for i, (r, rt) in enumerate(zip(self._reactions, rates)):
+           reac = list(r.reactants.keys())
+           prod = list(r.products.keys())
+           spec = list(set(reac + prod))
 
-    def degree_histogram(self):
-        """ Return of nodes degrees.
+           def func(A, B):
+               return abs(self._nu_dict[A][i] * rt)
+
+           self._graph.update_edges(reac, spec, func)
+
+           if r.reversible:
+               # TODO think about the physical meaning of this!
+               prodonly = [x for x in prod if x not in reac]
+               if prodonly:
+                   self._graph.update_edges(prodonly, spec, func)
+
+        # FIXME understand why so many zero denominators!
+        self._graph.divide_edges(lambda A, B: den_dict[A], verbose=False)
+
+    def _tag_species(self):
+        """ Perform DFS with species tagging. """
+
+        h = networkx.DiGraph()
+
+        for spec in self._names:
+            h.add_node(spec, mark=False, val=0.0)
+
+            if spec in self._start:
+                h.nodes[spec]['mark'] = True
+                h.nodes[spec]['val'] = 1.0
+
+        for A, B, prop in self._graph.sort_edges():
+            h.add_edge(A, B, val=prop)
+
+            #TODO Check this algorithm
+            if h.nodes[A]['mark'] and not h.node[B]['mark']:
+                rAB = h.edges[A, B]['val']
+                tree = networkx.dfs_tree(h, B)
+
+                for node in tree.nodes():
+                    if rAB > h.nodes[node]['val']: # not in original
+                        h.nodes[node]['val'] = rAB
+
+        sort_species = [(A, h.nodes[A]['val']) for A in h.nodes()]
+        return sorted(sort_species, key=lambda p: p[1])
+
+    def get_skeletal_mech(self, cond_list, threshold):
+        """ Retrieve skeletal mechanism from samples state space.
+
+        This routine produces skeletal mechanisms that are robust within a state
+        space represented by points in the files listed in the conditions list.
+
+        TODO
+        ----
+        This method has much to be optimized!
+
+        Parameters
+        ----------
+        cond_list : list
+            List of files containing state space points representing the region
+            where integration of simplified mechanism is expected to be of good
+            precision. The format of this list must be the one returned by
+            :func:`gen_samples_psr`.
+        threshold : float
+            Simplification threshold. See references.
 
         Returns
         -------
         list
-            List indexed by degree with the number of its occurences.
+            List of species retained with use of given threshold.
         """
 
-        return networkx.degree_histogram(self)
+        keep_species = []
+        for T, P, X, path in cond_list:
+            print(f'\n Simplifying from state {path}')
+            data = read_csv(path)
 
-    def ordered_degree(self):
-        """ Returns of nodes ordered by degree.
+            for nrow, row in data.iterrows():
+                print(f' Currently on row {nrow}')
+
+                self._graph.solution.TPX = T, P, dict(row[self._names])
+                rates = numpy.abs(self._graph.solution.net_rates_of_progress)
+
+                den = numpy.abs(self._nu).dot(rates)
+                den_dict = {s: d for s, d in zip(self._names, den)}
+
+                self._graph.reinitialize_graph()
+                self._update_graph(den_dict, rates)
+                keep_species += self._tag_species()
+
+        keep_species = sorted(keep_species, key=lambda x: x[0])
+        keep_dict = {}
+
+        for k, v in keep_species:
+            if k not in keep_dict:
+                keep_dict[k] = v
+            else:
+                keep_dict[k] = max(v, keep_dict[k])
+
+        keep_species = []
+        for key in keep_dict.keys():
+            if keep_dict[key] >= threshold:
+                keep_species.append(key)
+
+        return list(set(keep_species))
+
+
+class SimplifyDRGManager(object):
+    """ Provides a workflow for DRG simplification.
+
+    """
+
+    @staticmethod
+    def gen_name_TPXQ(mech, T, P, X, Q=0.0):
+        """ Generate a standard file name.
+
+        This function is intended to generate a CSV file name in terms of the
+        operating conditions of a gas phase perfect stirred reactor. The
+        parameters taken into account comprise the pressure, temperature, inlet
+        composition, and flow rate.
+
+        Parameters
+        ----------
+        mech : str
+            Mechanism name or another identifier.
+        T : float
+            Characteristic temperature in kelvin.
+        P : float
+            Operating pressure in pascal.
+        X : dict or str
+            Dictionary of species and respective mole fractions. If many species
+            are used in intial state, use a composition identifier instead.
+        Q : float, optional
+            Inlet volume flow rate in SCCM. Default is 0.0.
 
         Returns
         -------
+        str
+            Standardized CSV file name.
+        """
+
+        if isinstance(X, dict):
+            X = '_'.join(map(lambda a: f'{a[0]:s}_{a[1]:.5e}', X.items()))
+
+        name = f'{mech}_{Q:.1f}sccm_{P:.1f}Pa_{T:.2f}K_{X}'
+        return f'{name.replace(".", "_")}.csv'
+
+    @staticmethod
+    def gen_samples_psr(mech, space, tend, overwrite=False, **kwargs):
+        """ Generate sample space using an isothermal PSR.
+
+        TODO
+        ----
+        Replace CSV writer by a cantera writer or a DataFrame.
+        Consider generating a single file instead.
+
+        Parameters
+        ----------
+        mech : str
+            Mechanism file or path.
+        space : StateSpace
+            Object describing set of conditions to scan.
+        tend : float
+            Integration time to sample from.
+        overwrite : bool, optional
+            If `True` allows samples to be overwritten. Default is `True`.
+            FIXME cannot have overwrite because of kwargs!!
+        Returns
+        -------
         list
-            List of pairs <node, degree>, ordered by degree.
+            List of lists with conditions and corresponding file name.
         """
 
-        baselist = map(lambda v: (v, self.degree(v)), self)
-        # baselist = [(v, self.degree(v)) for v in self]
-        return sorted(baselist, key=lambda x: x[1], reverse=True)
+        dir_name = kwargs.get('dir_name', 'samples')
+        n_samples = kwargs.get('n_samples', 10)
+        species = kwargs.get('species', None)
+        flowrate = kwargs.get('flowrate', 0.0)
 
-    @property
-    def density(self):
-        """ Graph density. """
+        if not os.path.exists(dir_name):
+            os.makedirs(dir_name)
 
-        return networkx.density(self)
+        times = numpy.linspace(0, tend, n_samples)
+        sol = filter_mechanism(mech, species, **kwargs)
+        rea = cantera.IdealGasReactor(sol, energy='off')
+        sim = cantera.ReactorNet([rea])
 
-    def plot_adjmatrix(self, saveas, overwrite=True, **kwargs):
-        """ Interface to :meth:`CanteraPFR.ct_aux.plot_adjmatrix`. """
+        mech_name = os.path.basename(mech)
+        prod_TPX = product(space.T, space.P, space.X)
+        head = ['T', 'P'] + sol.species_names
+        cond_list = []
 
-        plot_adjmatrix(self, saveas, overwrite=overwrite, **kwargs)
+        for T, P, X in prod_TPX:
+            basename = SimplifyDRGManager.gen_name_TPXQ(mech_name, T, P, X,
+                                                        Q=flowrate)
+            basename = os.path.join(dir_name, basename)
+            cond_list.append([T, P, X, basename])
 
-    def plot_deghist(self, saveas, overwrite=True, **kwargs):
-        """ Interface to :meth:`CanteraPFR.ct_aux.plot_deghist`. """
-
-        plot_deghist(self, saveas, overwrite=overwrite, **kwargs)
-
-
-class DirectedGraph(networkx.DiGraph, BaseGraph):
-    """ Generate species directed relational graph.
-
-    An edge is added for every pair of interacting species in a reaction. If
-    :math:`A\\rightarrow{}B`, then a directed edge is added between these.
-
-    Note
-    ----
-        No self loops :math:`(A\\rightarrow{}A)` are generated in the graph.
-
-    Parameters
-    ----------
-    sol : cantera.Solution
-        Solution object representing the kinetics mechanism.
-    fullfmt : bool, optional
-        If `True`, print all edges in mechanism. Default is `False`.
-    """
-
-    def __init__(self, sol, fullfmt=False):
-        # networkx.DiGraph.__init__(self)
-        # BaseGraph.__init__(self, sol, fullfmt)
-        super(DirectedGraph, self).__init__()
-        self._base_init(sol, fullfmt)
-
-        for r in self._sol.reactions():
-            reac = list(r.reactants.keys())
-            prod = list(r.products.keys())
-            spec = reac + prod
-
-            self._add_edges(reac, spec)
-            if r.reversible:
-                self._add_edges(prod, spec)
-
-        self = networkx.freeze(self)
-
-    def _add_edges(self, src, dst):
-        """ Add edges from src to dst without self loops on nodes. """
-
-        # TODO improve with itertools (or other).
-        src = numpy.array(src)
-        dst = numpy.array(dst)
-
-        for B in src:
-            for A in dst[dst != B]:
-                self.add_edge(A, B, weight=0.0)
-
-    def update_edges(self, src, dst, func):
-        """ Update edges values.
-
-        Parameters
-        ----------
-        src : list
-            List of source nodes names.
-        dst : list
-            List of destination nodes names.
-        func : function
-            Function used to increment edges `weight` property. This function
-            takes the names of nodes `A` and `B` as arguments.
-        """
-
-        # TODO initialize edges visit here and remove reinitialize_graph.
-        # TODO improve with itertools (or other).
-        src = numpy.array(src)
-        dst = numpy.array(dst)
-
-        for B in src:
-            for A in dst[dst != B]:
-                self[A][B]['weight'] += func(A, B)
-
-    def divide_edges(self, func):
-        """ Divide edges by function.
-
-        Parameters
-        ----------
-        func : function
-            Function used to increment edges `weight` property. This function
-            takes the names of nodes `A` and `B` as arguments.
-        """
-
-        for A, B in networkx.edges_iter(self):
-            val = func(A, B)
-
-            if val == 0.0:
-                print(f'Warning {A}->{B} has zero denominator. Setting 1.')
-                self[A][B]['val'] = 1.0
+            print(f'\n Working on space:\n {basename}\n')
+            if os.path.exists(basename) and not overwrite:
+                print(' Sample already exists, skipping.')
                 continue
 
-            ratio = self[A][B]['val'] / val
-            self[A][B]['val'] = min(ratio, 1.0)
+            sol.TPX = T, P, X
+            rea.syncState()
+            sim.set_initial_time(0.0)
 
-    def sort_edges(self, func, w='weight', reverse=True):
-        """ Sort graph edges by key using a function.
+            try:
+                with open(basename, 'w') as outfile:
+                    writer = csv.writer(outfile)
+                    writer.writerow(head)
+                    writer.writerow([T, P] + list(sol.X))
+
+                    for t in times[1:]:
+                        print(f' Step at {t:.3e} s')
+                        sim.advance(t)
+                        writer.writerow([T, P] + list(sol.X))
+            except (Exception) as err:
+                print(f'\n {err}:\n while generating:\n {basename}')
+
+        return cond_list
+
+    @staticmethod
+    def manage(mech, setup, overwrite=False, **kwargs):
+        """ Manage DRG mechanism simplification.
+
+        TODO
+        ----
+        Save `setup` to a dictionary to be able to check if existing
+        simplifications are not being repeated and thus avoid running again
+        during post-processing.
 
         Parameters
         ----------
-        func : function
-            Function to provide ordering.
-        reverse : bool, optional
-            If `True`, returns in reverse order.
-
-        Returns
-        -------
-        list
-            List of edges ordered accoding to `func`.
+        mech : str
+            Mechanism file or path.
+        setup : SimplifySetup
+            Structure containing simplification setup.
         """
 
-        def mapper(A, B):
-            return (A, B, self[A][B][w])
+        t0 = time.time()
+        setup.validate()
 
-        # Check if sorted accepts map directly.
-        # baselist = [(A, B, {w: self[A][B][w]}) for A, B in networkx.edges_iter(self)]
-        baselist = list(map(mapper, networkx.edges_iter(self)))
-        return sorted(baselist, key=func, reverse=reverse)
+        if not os.path.exists(setup.dir_name):
+            os.makedirs(setup.dir_name)
 
-    def ordered_in_degree(self):
-        """ Returns list of tuples (node, degree) ordered by degree.
+        if 'species' in kwargs:
+            print('Overwritting species list from keyword arguments')
 
-        Returns
-        -------
-        list
-            List of tuples of species and respective degree.
+        if 'saveas' in kwargs:
+            print('Overwritting save name from keyword arguments')
+
+        if 'dir_name' in kwargs:
+            print('Overwritting directory name from keyword arguments')
+
+        # TODO kwargs parsed to filter_mechanism by analyse_graph.
+        #transport='Multi', write=False,
+        #idname=None, output=None, overwrite=False)
+
+        kwargs['species'] = setup.species_filter
+        kwargs['saveas'] = os.path.join(setup.dir_name, 'graph', 'analysis')
+        kwargs['dir_name'] = os.path.join(setup.dir_name, 'samples')
+
+        dir_smp = os.path.join(setup.dir_name, 'smp')
+        if not os.path.exists(dir_smp):
+            os.makedirs(dir_smp)
+
+        # FIXME this should be in analyse_graph
+        dir_graph = os.path.join(setup.dir_name, 'graph')
+        if not os.path.exists(dir_graph):
+            os.makedirs(dir_graph)
+
+        cond_list = SimplifyDRGManager.gen_samples_psr(mech, setup.space,
+                                                       setup.integ,
+                                                       overwrite=overwrite,
+                                                       **kwargs)
+
+        graph = analyse_graph(mech, DirectedGraph, **kwargs)
+        simplifier = SimplifyDRG(graph, setup.start_set)
+
+        tmin = setup.threshold_min
+        tmax = setup.threshold_max
+        threshold_list = numpy.linspace(tmin, tmax, setup.nsimp)
+
+        def simplify(threshold):
+            smp = simplifier.get_skeletal_mech(cond_list, threshold)
+            saveas = os.path.join(dir_smp, f'smp_{threshold:.6f}.txt')
+
+            # TODO transform all this in JSON dict!
+            with open(saveas, 'w') as writer:
+                writer.write(','.join(smp))
+
+            return len(smp)
+
+        # TODO it would be much faster if threshold loop was done inside the
+        # simplification class, but new data structures need to be developped.
+        respath = os.path.join(dir_smp, 'residual.csv')
+        residual_hist = [[], []]
+        with open(respath, 'w') as residuals:
+            writer = csv.writer(residuals)
+
+            for threshold in threshold_list:
+                print(f'\n Working with threshold {threshold:.4f}')
+                nspec = simplify(threshold)
+                writer.writerow([threshold, nspec])
+                residual_hist[0].append(threshold)
+                residual_hist[1].append(nspec)
+
+        figname = os.path.join(dir_smp, 'residual_hist.png')
+
+        pyplot.close('all')
+        pyplot.style.use('bmh')
+        pyplot.plot(residual_hist[0], residual_hist[1])
+        pyplot.xlabel('Simplication threshold, $\\varepsilon$ ')
+        pyplot.ylabel('Number of residual species')
+        pyplot.tight_layout()
+        pyplot.savefig(figname, dpi=300)
+
+        print(f'Simplification took {time.time()-t0} s')
+        return glob.glob(os.path.join(dir_smp, r'smp_*'))
+
+    @staticmethod
+    def test(mech, setup, TPX, all_smp, n_samples=100, outfreq=10, **kwargs):
+        """ Compares solution of simplified mechanism to its full counterpart.
+
+        Parameters
+        ----------
         """
 
-        # baselist = [(v, self.in_degree(v)) for v in self]
-        baselist = map(lambda v: (v, self.in_degree(v)), self)
-        return sorted(baselist, key=lambda x: x[1], reverse=True)
+        times = numpy.linspace(0, setup.integ, n_samples)
+        outdir = os.path.join(setup.dir_name, 'test')
+        if not os.path.exists(outdir):
+            os.makedirs(outdir)
 
-    def ordered_out_degree(self):
-        """ Returns list of tuples (node, degree) ordered by degree.
+        def run_mech(species, basename):
+            sol = filter_mechanism(mech, species, **kwargs)
+            sol.TPX = TPX
 
-        Returns
-        -------
-        list
-            List of tuples of species and respective degree.
-        """
+            head = ['t', 'T', 'P'] + sol.species_names
+            rea = cantera.IdealGasReactor(sol, energy='off')
+            sim = cantera.ReactorNet([rea])
+            sim.set_initial_time(0.0)
 
-        # baselist = [(v, self.out_degree(v)) for v in self]
-        baselist = map(lambda v: (v, self.out_degree(v)), self)
-        return sorted(baselist, key=lambda x: x[1], reverse=True)
+            try:
+                with open(basename, 'w') as outfile:
+                    writer = csv.writer(outfile)
+                    writer.writerow(head)
+                    writer.writerow([0, sol.T, sol.P] + list(sol.X))
 
-    def reinitialize_graph(self):
-        """ Set the value of property `weight` of all edges to zero. """
+                    for i, t in enumerate(times[1:]):
+                        if not i % outfreq:
+                            print(f' Step at {t:.3e} s')
+                        sim.advance(t)
+                        writer.writerow([t, sol.T, sol.P] + list(sol.X))
 
-        for A, B in networkx.edges_iter(self):
-            self[A][B]['edges'] = 0.0
+            except (Exception) as err:
+                print(f'\n {err}:\n while generating:\n {basename}')
 
-    def complexes(self):
-        """ Return complexes for building Feinberg–Horn–Jackson graph. """
+        basename_src = os.path.join(outdir, f'reference_solution.csv')
+        run_mech(None, basename_src)
+        data_src = read_csv(basename_src, usecols=['t'] + setup.plot_spec)
 
-        raise NotImplementedError('Not yet implemented')
+        for path in sorted(all_smp):
+            print(f'\n Testing {path}')
+            basename = '_'.join(os.path.basename(path).split('.')[:-1])
+            basename_smp = os.path.join(outdir, f'{basename}_smp.csv')
 
-    def plot_adjmatrix(self, saveas, overwrite=True, **kwargs):
-        print('plot_adjmatrix is not available for DirectedGraph')
+            # TODO fix this when using JSON!
+            with open(path, 'r') as reader:
+                species = reader.read().split(',')
 
+            run_mech(species, basename_smp)
+            data_smp = read_csv(basename_smp, usecols=['t'] + setup.plot_spec)
 
-class UndirectedGraph(BaseGraph):
-    """ Generate species undirected relational graph.
+            for spec in setup.plot_spec:
+                saveas = os.path.join(outdir, f'test_{spec}_{basename}.png')
 
-    An edge is added for every pair of species in a reaction.
-
-    Note
-    ----
-        No self loops :math:`(A\\rightarrow{}A)` are generated in the graph.
-
-    Parameters
-    ----------
-    sol : cantera.Solution
-        Solution object representing the kinetics mechanism.
-    fullfmt : bool, optional
-        If `True`, print all edges in mechanism. Default is `False`.
-    """
-
-    def __init__(self, sol, fullfmt=True):
-        super(UndirectedGraph, self).__init__()
-        self._base_init(sol, fullfmt)
-
-        for r in self._sol.reactions():
-            reac = r.reactants.keys()
-            prod = r.products.keys()
-            spec = list(reac) + list(prod)
-
-            # for p, q in list(combinations(spec, 2)):
-            for p, q in combinations(spec, 2):
-                if (p, q) not in self and (p != q):
-                    self.add_edge(p, q)
-
-        self = networkx.freeze(self)
-
-
-def analyse_graph(mech, graph_class, **kwargs):
-    """ Automatic analysis of species graph.
-
-    This method provides a preliminary mechanism species graph analysis.
-    It is able to filter species and reactions from a species file and
-    perform analysis of simpler versions of a mechanism.  An input file
-    and graph type are required inputs.  Optional arguments are the base
-    name to save the resulting files and the list of species to filter
-    the mechanism.  Graph species connection degree output is supplied
-    as well as a basic report with the number of nodes, edges and density.
-    Plots adjacency matrix graph histogram.
-
-    TODO
-    ----
-    Document keyword arguments.
-
-    Parameters
-    ----------
-    mech: str
-        Mechanism file path in Cantera's format.
-    graph_class: BaseGraph
-        Graph class to be used.
-
-    Returns
-    -------
-    BaseGraph
-        Return generated graph with derived type `graph_class`.
-    """
-
-    print(f' Starting {graph_class.__name__} analysis approach')
-
-    saveas = kwargs.get('saveas', f'results_{graph_class.__name__}')
-    species = kwargs.get('species', None)
-
-    sol = filter_mechanism(mech, species, **kwargs)
-    mgraph = graph_class(sol)
-
-    if isinstance(mgraph, DirectedGraph):
-        with open(f'{saveas}-inward.txt', 'w') as writer:
-            for v, d in mgraph.ordered_in_degree():
-                writer.write(f'{v:16s} {d:4d}\n')
-
-        with open(f'{saveas}-outward.txt', 'w') as writer:
-            for v, d in mgraph.ordered_out_degree():
-                writer.write(f'{v:16s} {d:4d}\n')
-
-    with open(f'{saveas}-global.txt', 'w') as writer:
-        for v, d in mgraph.ordered_degree():
-            writer.write(f'{v:16s} {d:4d}\n')
-
-    with open(f'{saveas}-report.txt', 'w') as writer:
-        basestr = (f'Species graph contains {mgraph.size()} edges\n'
-                   f'Species graph contains {mgraph.order()} nodes\n'
-                   f'Species graph density  {mgraph.density}\n')
-        writer.write(basestr)
-
-    mgraph.plot_deghist(f'{saveas}-histogram.png')
-    mgraph.plot_adjmatrix(f'{saveas}-adjacency.png')
-
-    return mgraph
-
-
-
-
-
-
-#         def gen_nameTPXQ(mech, T, P, X, Q=0.0):
-#             """ Generate a standard file name.
-#
-#             This function is intended to generate a csv file name in terms of the
-#             operating conditions of a gas phase chemical reactor.  The parameters
-#             taken into account comprise the pressure, temperature, flow rate and
-#             inlet composition.
-#
-#             Parameters
-#             ----------
-#             mech : :obj:`str`
-#                 Mechanism name.
-#             T : :obj:`float`
-#                 Characteristic temperature in :math:`[K]`.
-#             P : :obj:`float`
-#                 Operating pressure in :math:`[Pa]`.
-#             X : :obj:`dict` of :obj:`str`: :obj:`float`
-#                 Dictionary of species and respective mole fractions.
-#             Q : :obj:`float`, optional
-#                 Inlet volume flow rate in :math:`[cm^{3}\\,min^{-1}]`.
-#                 Default is 0.0.
-#
-#             Returns
-#             -------
-#             :obj:`str`
-#                 Standard csv file name.
-#             """
-#             nQPT = '{:04d}sccm-{:06d}Pa-{:04d}K'.format(int(Q), int(P), int(T))
-#             X = ['{:s}_{:.6e}'.format(k, v) for k, v in X.items()]
-#             X = '-'.join(sorted([x.replace('.', '_') for x in X]))
-#             return '{}-{}-{}.csv'.format(mech.split('.')[0], nQPT, X)
-#
-#
-#         def generate_samples(mechanism, space, tend, **kwargs):
-#             """ Generate sample space from IdealGasConsPressureReactor
-#                 simulations carried with energy equation off.
-#
-#                 mechanism: cti mechanism file on cantera's path.
-#                 space: space state to scan
-#
-#                 returns: list of lists of conditions used and files generated.
-#             """
-#             saveat = kwargs.get('saveat', 'generated-samples')
-#             samples = kwargs.get('samples', 10)
-#             species_list = kwargs.get('species_list', None)
-#
-#             if not os.path.exists(saveat):
-#                 os.mkdir(saveat)
-#
-#             sol = mechanism_from_species(mechanism, species_list)
-#             T, P, X = space['T'], space['P'], space['X']
-#             rea = ct.IdealGasReactor(sol, energy='off')
-#             sim = ct.ReactorNet([rea])
-#             condlist = []
-#
-#             for TPX in list(itertools.product(T, P, X)):
-#                 T, P, X = TPX
-#                 sol.TPX = T, P, X
-#                 rea.syncState()
-#                 sim.set_initial_time(0.0)
-#                 basename = gen_nameTPXQ(mechanism, P, T, X, Q=0.0)
-#                 basename = os.path.join(saveat, 'sample-{}'.format(basename))
-#                 condlist.append([T, P, basename])
-#
-#                 print('\n  Working on space:\n  %s\n' % basename)
-#                 if os.path.isfile(basename):
-#                     print('  Sample already exists, skipping.')
-#                     continue
-#
-#                 try:
-#                     outfile = open(basename, 'w')
-#                     writer = csv.writer(outfile)
-#                     writer.writerow(sol.species_names)
-#
-#                     dt = t/samples
-#                     for i in range(1, samples+1):
-#                         print('  Step at %.3e s' %(i*dt))
-#                         sim.advance(i*dt)
-#                         writer.writerow(sol.X)
-#                 except IOError:
-#                     print('\n  Cannot write results:\n  %s\n' % basename)
-#                     pass
-#                 finally:
-#                     outfile.close()
-#             return condlist
-#
-#         #class lu_law_simplify:
-#         #    def __init__(self, digraph, start_set):
-#         #        """ Reduce kinect mechanism contained in directed graph.
-#         #
-#         #            digraph: the mechanism species directed graph.
-#         #            start_set: species to keep in mechanism.
-#         #        """
-#         #        self.sol = digraph.sol
-#         #        self.gph = digraph
-#         #        self.set = start_set
-#         #
-#         #        self.names = self.sol.species_names
-#         #
-#         #        nu_prods = self.sol.product_stoich_coeffs()
-#         #        nu_reacs = self.sol.reactant_stoich_coeffs()
-#         #        self.nu = np.array(nu_prods-nu_reacs)
-#         #        self.nu_dict = {spec: self.nu[i] for i,spec in enumerate(self.names)}
-#         #
-#         #        self.reactions = self.sol.reactions()
-#         #
-#         #
-#         #    def get_skeletal_mechanism(self,  cond_list, threshold=0.2):
-#         #        """ For given conditions list, return a list of species to
-#         #            retain in simplified mechanism.
-#         #
-#         #            cond_list: list of conditions (T, P, sample file).
-#         #            threshold: cut-off value for mechanism reduction.
-#         #
-#         #            returns: set of species to keep in reduced mechanism.
-#         #        """
-#         #        keep_species = []
-#         #        for T,P,f in cond_list:
-#         #            print('\n  Simplifying from state %s' % f)
-#         #            data = pd.read_csv(f, header=0, names=self.names)
-#         #
-#         #            for nrow,row in enumerate(data.iterrows()):
-#         #                print('  Currently on row %d' % nrow)
-#         #
-#         #                X = [dict(x) for x in row[1:]][0] #TODO take care, workaround
-#         #                self.sol.TPX = T, P, X
-#         #
-#         #                rates = np.abs(self.sol.net_rates_of_progress)
-#         #
-#         #                den = np.abs(self.nu).dot(rates)
-#         #                den_dict = {spec: den[i] for i,spec in enumerate(self.names)}
-#         #
-#         #                self.gph.reinitialize_graph()
-#         #                self._updategraph(den_dict, rates)
-#         #
-#         #                func = lambda x: self.gph.digraph[x[0]][x[1]]['val']
-#         #                sort_ratio_g = self.gph.sort_edges(func)
-#         #
-#         #                h = nx.DiGraph()
-#         #
-#         #                for spec in self.names:
-#         #                    h.add_node(spec, {'mark': False, 'val':0.0})
-#         #
-#         #                    if spec in self.set:
-#         #                        h.node[spec]['mark'] = True
-#         #                        h.node[spec]['val'] = 1.0
-#         #
-#         #                for t in sort_ratio_g:
-#         #                    A, B, prop = t
-#         #                    h.add_edge(A, B, prop)
-#         #
-#         #                    #TODO Check this algorithm
-#         #                    if h.node[A]['mark'] and not h.node[B]['mark']:
-#         #                        rAB = h[A][B]['val']
-#         #                        tree = nx.dfs_tree(h, B)
-#         #
-#         #                        for node in nx.nodes_iter(tree):
-#         #                            if rAB > h.node[node]['val']: # not in original
-#         #                                h.node[node]['val'] = rAB
-#         #
-#         #                sort_species = [(A, h.node[A]['val']) for A in nx.nodes_iter(h)]
-#         #                sort_species = sorted(sort_species, key=lambda p: p[1])
-#         #                keep_species += sort_species
-#         #
-#         #        keep_species = sorted(keep_species, key=lambda x: x[0])
-#         #        keep_dict = {}
-#         #        for k,v in keep_species:
-#         #            if k not in keep_dict:
-#         #                keep_dict[k] = v
-#         #            else:
-#         #                keep_dict[k] = max(v, keep_dict[k])
-#         #
-#         #        keep_species = []
-#         #        for key in keep_dict.keys():
-#         #            if keep_dict[key] >= threshold:
-#         #                keep_species.append(key)
-#         #
-#         #        return list(set(keep_species))
-#         #
-#         #
-#         #    def _updategraph(self, den_dict, rates):
-#         #        """ Update edges values from rates.
-#         #
-#         #            den_dict: dictionary of denominators for species abs(del_nu*omega).
-#         #            rates: reaction rates omega.
-#         #        """
-#         #        for i,(r,rt) in enumerate(zip(self.reactions,rates)):
-#         #            reac = list(r.reactants.keys())
-#         #            prod = list(r.products.keys())
-#         #            spec = list(set(reac+prod))
-#         #
-#         #            func = lambda A, B: abs(self.nu_dict[A][i]*rt)
-#         #            self.gph.update_edges(reac, spec, func)
-#         #
-#         #            if r.reversible:
-#         #                prodonly = [x for x in prod if x not in reac] #TODO think about
-#         #                if prodonly:
-#         #                    self.gph.update_edges(prodonly, spec, func)
-#         #
-#         #        func = lambda A, B: den_dict[A]
-#         #        self.gph.divide_nodes(func)
-#         #
-#         ## ****************************************************************************
-#         ## function simplify_mechanism
-#         ##TODO allow to write cti file from here!
-#         ## ****************************************************************************
-#         #
-#         #def simplify_mechanism(mechanism, setup, **kwargs):
-#         #    """ Use reduce class to produce a simplified reaction mechanism.
-#         #
-#         #        mechanism: name o cti file containing mechanism to reduce.
-#         #        digraph: a directed graph of the mechanism.
-#         #        cond_list: conditions to explore in reduction.
-#         #        start_set: species to keep anyways in mechanism. TODO check!
-#         #        threshold_list: list of cut-off parameters to explore reduction.
-#         #        save: existing directory to save results.
-#         #
-#         #    """
-#         #    # Parse kwargs
-#         #    saveat    = xu._get_kwarg('saveat',  kwargs, 'simplified-mechanism')
-#         #    thr_max   = xu._get_kwarg('thr_max', kwargs, 0.2)
-#         #    thr_num   = xu._get_kwarg('thr_max', kwargs, 20)
-#         #    gonly     = xu._get_kwarg('gonly',     kwargs, None)
-#         #    speciesfi = xu._get_kwarg('speciesfi', kwargs, None)
-#         #
-#         #    # Deal with folder
-#         #    xu._get_outfolder(saveat)
-#         #
-#         #    # Deal with setup
-#         #    msg = '\n  Cannot continue without `start_set`'
-#         #    start_set = setup['start_set'] if 'start_set' in setup else sys.exit(msg)
-#         #
-#         #    msg = '\n  Cannot continue without `cond_list`'
-#         #    cond_list = setup['cond_list'] if 'cond_list' in setup else sys.exit(msg)
-#         #
-#         #    thr_max = setup['thr_max'] if 'thr_max' in setup else thr_max
-#         #    thr_num = setup['thr_num'] if 'thr_num' in setup else thr_num
-#         #
-#         #    if 'digraph' in setup:
-#         #        digraph = setup['digraph']
-#         #    else:
-#         #        analysis_setup = {'gonly': gonly, 'speciesfi': speciesfi}
-#         #        digraph = analyse_graph(mechanism, 'digraph', **analysis_setup)
-#         #
-#         #    # Create simplification manager
-#         #    name = digraph.name
-#         #    red = lu_law_simplify(digraph, start_set)
-#         #
-#         #    # Auxiliary private function
-#         #    def _simp(thr, fname):
-#         #        smp = red.get_skeletal_mechanism(cond_list, threshold=thr)
-#         #
-#         #        try:
-#         #            specfile = open(saveas, 'w')
-#         #            specfile.write(' '.join([str(s)+' 'for s in smp]))
-#         #        except IOError:
-#         #            print('\n  Cannot write %s' % fname)
-#         #            raise SystemExit
-#         #        finally:
-#         #            specfile.close()
-#         #
-#         #        return len(smp)
-#         #
-#         #    # Loop over threshold list
-#         #    # TODO it would be much faster if threshold loop was done inside the
-#         #    # simplification class, but new data structures need to be developped.
-#         #    resname = name+'-residual.csv'
-#         #    resname = os.path.join(saveat, resname)
-#         #
-#         #    if not os.path.isfile(resname):
-#         #        try:
-#         #            outfile = open(resname, 'w')
-#         #            writer = csv.writer(outfile)
-#         #
-#         #            for thr in np.linspace(0.0, thr_max, thr_num):
-#         #                print('\n  Working with threshold %.4f' % thr)
-#         #                fname = name+'-threshold-'+str('%.5f' % thr).replace('.','_')+'.txt'
-#         #                saveas = os.path.join(saveat, fname)
-#         #
-#         #                if os.path.isfile(saveas):
-#         #                    print('  Reduction already exists, skipping.')
-#         #                else:
-#         #                    nspec = _simp(thr, fname)
-#         #                    writer.writerow([thr, nspec])
-#         #        except IOError:
-#         #            print('\n  Cannot write %s' % resname)
-#         #            raise SystemExit
-#         #        finally:
-#         #            outfile.close()
-#         #
-#         #    # Plot residual species chart
-#         #    plot_residual_species(resname)
-#         #
-#         #    return {'dir': saveat, 'mech': mechanism}
-#         #
-#         ## ****************************************************************************
-#         ## function test_mechanism
-#         ## ****************************************************************************
-#         #
-#         #def test_mechanism(solution, TPX, interval, **kwargs):
-#         #    """ Test reduced mechanisms.
-#         #    """
-#         #    # Parse kwargs
-#         #    #gonly     = xu._get_kwarg('gonly',     kwargs, None)
-#         #    speciesfi = xu._get_kwarg('speciesfi', kwargs, None)
-#         #    plotspec  = xu._get_kwarg('plotspec',  kwargs, None)
-#         #
-#         #    # Deal with arguments
-#         #    msg = '\n  Missing solution directory'
-#         #    directory = solution['dir'] if 'dir' in solution else sys.exit(msg)
-#         #
-#         #    msg = '\n  Missing solution mechanism'
-#         #    mechanism = solution['mech'] if 'mech' in solution else sys.exit(msg)
-#         #
-#         #    # Iterate over simplifications
-#         #    plt.clf()
-#         #    filelist = sorted(glob.glob(os.path.join(directory,'*threshold*.txt')))
-#         #    for filename in filelist:
-#         #        print('\n  Testing %s' % filename)
-#         #
-#         #        outfilename = os.path.join(filename.split('.')[0]+'-sol.csv')
-#         #        if os.path.isfile(outfilename):
-#         #            print('  File already tested, skipping.')
-#         #        else:
-#         #            new = load_mechanism(mechanism, filename, speciesfi=speciesfi)
-#         #            new.TPX = TPX
-#         #            header = ['time']+new.species_names
-#         #
-#         #            r = ct.IdealGasConstPressureReactor(new, energy='off')
-#         #            sim = ct.ReactorNet([r])
-#         #
-#         #            try:
-#         #                print('\n  Saving %s' % outfilename)
-#         #                outfile = open(outfilename, 'w')
-#         #                writer = csv.writer(outfile)
-#         #                writer.writerow(header)
-#         #
-#         #                for next_time in interval:
-#         #                    sim.advance(next_time)
-#         #                    writer.writerow([next_time, *new.X])
-#         #            except IOError:
-#         #                print('\n  Cannot write %s' % outfilename)
-#         #                raise SystemExit
-#         #            finally:
-#         #                outfile.close()
-#         #
-#         #            if plotspec is not None:
-#         #                # Plot simplification comparison
-#         #                data = pd.read_csv(outfilename, header=0, names=header)
-#         #                for spec in plotspec:
-#         #                    plt.plot(data['time'], data[spec])
-#         #
-#         #    plt.savefig('test.png', bbox_inches='tight')
+                pyplot.close('all')
+                pyplot.style.use('bmh')
+                pyplot.plot(data_smp['t'], data_smp[spec], 'o-', label='Simplified')
+                pyplot.plot(data_src['t'], data_src[spec], label='Original')
+                pyplot.xlabel('Time (s)')
+                pyplot.ylabel(f'Mole fraction of {spec}')
+                pyplot.legend()
+                pyplot.tight_layout()
+                pyplot.savefig(saveas, dpi=300)

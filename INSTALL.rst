@@ -1,4 +1,5 @@
-# Install
+Install
+=======
 
 The following steps assume you do not dispose of a Cantera (at least 2.4.0 install in
 your machine. **Notice that the following will only work if you compiled Cantera
@@ -15,14 +16,16 @@ If Sundials is elsewhere, you will need to edit the `Makefile` itself, and if yo
 intend to do this I assume you know how to do that.  If compiling from Cygwin, also
 add `-U__STRICT_ANSI__` to `OPTIONS` line.
 
-## Linux
+Linux
+-----
 
 Install `libopenblas-dev`, `libboost-dev` assuming you are using Ubuntu (or their
 variants for your distro) and `scons` prior to installation. Next move to this
 directory and run `get_cantera.sh` and wait for completion. Once done, run
 `make` to generate the library.
 
-## Cygwin install (Windows)
+Cygwin (Windows)
+----------------
 
 **Note: during development Cygwin is not supported. If you really need this
 interface for now, contact me directly so that we can manage to install it.**
@@ -49,7 +52,8 @@ of this file are available in your machine. Then execute your Cygwin terminal
 and move to this folder. Manually run `get_cantera.sh` and wait for completion.
 Once done, run `make` to generate library.
 
-## Note for Cygwin and Linux
+Note for Cygwin and Linux
+-------------------------
 
 You can choose to manually edit the `Makefile` and use `-lcantera` instead of
 `-lcantera_shared`. This will produce larger executables and unless you bind

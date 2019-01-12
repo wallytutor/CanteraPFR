@@ -19,6 +19,7 @@ def test_all():
     test_dimensionless()
     test_filter_mechanism()
     test_analyse_graph()
+    test_simplification()
     test_pypfr()
 
 

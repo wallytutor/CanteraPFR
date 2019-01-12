@@ -35,17 +35,17 @@ cython: library
 	$(PYTHON) setup.py install
 
 docs: cython
-	cd docs; make html
+	cd docs && make html
 
 library: $(OBJECTS)
 	$(AR) $(ARFLAGS) CanteraPFR/lib/libCanteraPFR.a $(OBJECTS)
 
 clean:
-	$(RM) $(OBJECTS) build CanteraPFR.egg-info dist
+	$(RM) $(OBJECTS) build *.egg-info
 
 dist-clean: clean
 	$(RM) CanteraPFR/lib/*
-	cd doc && make clean
+	cd docs && make clean
 
 clean-all: dist-clean
 	$(RM) external cygwin setup-x86_64.exe

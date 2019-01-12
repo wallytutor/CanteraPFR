@@ -133,6 +133,12 @@ here instead of the <cite>__init__</cite> one.</p>
 <dd><p>Interface to <a class="reference internal" href="../ct_aux/interfaces.html#CanteraPFR.ct_aux.plot_deghist" title="CanteraPFR.ct_aux.plot_deghist"><code class="xref py py-meth docutils literal notranslate"><span class="pre">CanteraPFR.ct_aux.plot_deghist()</span></code></a>.</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="CanteraPFR.ct_graph.BaseGraph.solution">
+<code class="descname">solution</code><a class="headerlink" href="#CanteraPFR.ct_graph.BaseGraph.solution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access to graph’s <cite>cantera.Solution</cite> object.</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -175,7 +181,7 @@ here instead of the <cite>__init__</cite> one.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>func</strong> (<em>function</em>) – Function used to increment edges <cite>weight</cite> property. This function
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>func</strong> (<em>function</em>) – Function used to increment edges <cite>val</cite> property. This function
 takes the names of nodes <cite>A</cite> and <cite>B</cite> as arguments.</td>
 </tr>
 </tbody>
@@ -215,14 +221,9 @@ takes the names of nodes <cite>A</cite> and <cite>B</cite> as arguments.</td>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="CanteraPFR.ct_graph.DirectedGraph.plot_adjmatrix">
-<code class="descname">plot_adjmatrix</code><a class="headerlink" href="#CanteraPFR.ct_graph.DirectedGraph.plot_adjmatrix" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
 <dt id="CanteraPFR.ct_graph.DirectedGraph.reinitialize_graph">
 <code class="descname">reinitialize_graph</code><a class="headerlink" href="#CanteraPFR.ct_graph.DirectedGraph.reinitialize_graph" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the value of property <cite>weight</cite> of all edges to zero.</p>
+<dd><p>Set the value of property <cite>val</cite> of all edges to zero.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -260,7 +261,7 @@ takes the names of nodes <cite>A</cite> and <cite>B</cite> as arguments.</td>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>src</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – List of source nodes names.</li>
 <li><strong>dst</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – List of destination nodes names.</li>
-<li><strong>func</strong> (<em>function</em>) – Function used to increment edges <cite>weight</cite> property. This function
+<li><strong>func</strong> (<em>function</em>) – Function used to increment edges <cite>val</cite> property. This function
 takes the names of nodes <cite>A</cite> and <cite>B</cite> as arguments.</li>
 </ul>
 </td>
