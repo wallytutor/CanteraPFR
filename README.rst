@@ -8,9 +8,9 @@ predefined wall profiles variations of PFR.
 Installation
 ============
 
-For detailed instructions, read `INSTALL`_.
+For detailed instructions, read INSTALL_.
 
-.. INSTALL: https://github.com/waltermateriais/CanteraPFR/blob/master/INSTALL.rst
+.. _INSTALL: https://github.com/waltermateriais/CanteraPFR/blob/master/INSTALL.rst
 
 Linux
 -----
