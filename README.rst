@@ -8,7 +8,9 @@ predefined wall profiles variations of PFR.
 Installation
 ============
 
-For detailed instructions, read [INSTALL.rst](INSTALL.rst).
+For detailed instructions, read `INSTALL_`.
+
+.. INSTALL_: INSTALL.rst.
 
 Linux
 -----
