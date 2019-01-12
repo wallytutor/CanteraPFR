@@ -49,9 +49,10 @@ Contribute
 Please do not hesitate to contact me if you have suggestions or wish to request
 new functionalities. I still have a lot of materials from my PhD to organize
 and make available here. This will comprise, depending on my free time, a PFR
-with imposed wall temperature, an adiabatic PFR (adapted from
-[here](https://github.com/Cantera/cantera-jupyter/blob/master/reactors/1D_pfr_surfchem.ipynb)),
+with imposed wall temperature, an adiabatic PFR (adapted from here_),
 and an automatic skeletal mechanism generation with DRG method.
+
+.. _here: https://github.com/Cantera/cantera-jupyter/blob/master/reactors/1D_pfr_surfchem.ipynb
 
 Email: waltermateriais@gmail.com
 
