@@ -29,7 +29,7 @@ OBJECTS  := $(patsubst $(SOURCES)/%.cpp,$(SOURCES)/%.o,$(SOBJECT))
 ###############################################################################
 
 .PHONY := all
-all: cython docs
+all: cython docs shared_library
 
 cython: library
 	$(PYTHON) setup.py install
@@ -39,6 +39,10 @@ docs: cython
 
 library: $(OBJECTS)
 	$(AR) $(ARFLAGS) CanteraPFR/lib/libCanteraPFR.a $(OBJECTS)
+
+shared_library: $(OBJECTS)
+	$(CXX) -shared -fPIC $(INCLUDES) CanteraPFR/cPFR.c $(OBJECTS) $(LIBRARIES) \
+	-o CanteraPFR/lib/libCanteraPFR_shared.so
 
 clean:
 	$(RM) $(OBJECTS) build *.egg-info

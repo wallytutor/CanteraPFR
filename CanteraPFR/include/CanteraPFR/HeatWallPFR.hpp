@@ -60,6 +60,9 @@ public:
         : HeatWallPFR{mech, phase, Di, T0, p0, X0, Q0, htc,
                       [&](doublereal x){ return Tw; }} {}
 
+    // TODO provide struct interface.
+    // HeatWallPFR(const ReactorConfig & r) {}
+
     int getInitialConditions(const doublereal t0,
                              doublereal *const y,
                              doublereal *const ydot);
