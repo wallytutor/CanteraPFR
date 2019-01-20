@@ -12,8 +12,10 @@
 #include <functional>
 #include <iomanip>
 #include <iostream>
+#include <fstream>
 #include <stdexcept>
 #include <string>
+#include <sstream>
 #include <vector>
 #include "cantera/IdealGasMix.h"
 #include "cantera/numerics/IDA_Solver.h"
