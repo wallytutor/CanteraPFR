@@ -17,7 +17,8 @@ class SolvePFR
 public:
     SolvePFR(CanteraPFR* pfr)
     {
-        m_vec.resize(pfr->nEquations());
+        m_neq = pfr->nEquations();
+        m_vec.resize(m_neq);
         m_var = pfr->variablesNames();
 
         try
@@ -25,6 +26,7 @@ public:
             m_solver = new IDA_Solver {*pfr};
             m_solver->setJacobianType(0);
             m_solver->setDenseLinearSolver();
+            m_solver->init(0.0);
         }
         catch (CanteraError& err)
         {
@@ -35,11 +37,6 @@ public:
     ~SolvePFR()
     {
         if (m_solver != nullptr) delete m_solver;
-    }
-
-    void init(doublereal t0)
-    {
-        m_solver->init(t0);
     }
 
     void setTolerances(doublereal rtol, doublereal atol)
@@ -62,18 +59,41 @@ public:
         m_solver->setStopTime(tstop);
     }
 
-    int solve(doublereal tout)
+    int solve(doublereal xout)
     {
+        int retcode = 0;
+
+        if (!m_ss_started)
+        {
+            for (auto var : m_var) { m_ss << var << ","; }
+            m_ss << "x" << std::endl;
+
+            for (unsigned i = 0; i != m_neq; ++i) {
+                m_ss << m_solver->solution(i) << ",";
+            }
+            m_ss << 0.0 << std::endl;
+
+            m_ss_started = true;
+        }
+
         // TODO Manage return codes from IDA_Solver.solve.
         try
         {
-            return m_solver->solve(tout);
+            retcode = m_solver->solve(xout);
         }
         catch (CanteraError& err)
         {
             std::cerr << err.what() << std::endl;
-            return -99;
+            retcode = -99;
         }
+
+        // TODO get pointer to sol instead.
+        for (unsigned i = 0; i != m_neq; ++i) {
+            m_ss << m_solver->solution(i) << ",";
+        }
+        m_ss << xout << std::endl;
+
+        return retcode;
     }
 
     doublereal solution(unsigned num) const
@@ -94,6 +114,16 @@ public:
         return m_var;
     }
 
+    void writeResults(const std::string & saveas)
+    {
+        std::ofstream ofs(saveas, std::ios::out | std::ios::binary);
+        if (!ofs)
+        {
+            throw std::runtime_error("Cannot output to file");
+        }
+        ofs << m_ss.str();
+        ofs.close();
+    }
 protected:
     //! To provide access to results.
     std::vector<doublereal> m_vec;
@@ -103,6 +133,15 @@ protected:
 
     //! Pointer to IDA solver.
     IDA_Solver* m_solver;
+
+    //! Buffer for results file.
+    std::stringstream m_ss;
+
+    //! Check if writer was started.
+    bool m_ss_started = false;
+
+    //! Number of equations in reactor model.
+    unsigned m_neq;
 
 }; // (class SolvePFR)
 

@@ -34,3 +34,4 @@ setup-x86_64.exe
 
 # Experimental code.
 /example/*
+*.gch
