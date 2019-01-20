@@ -90,7 +90,6 @@ cdef class PyPFR:
             raise SystemExit(f'Unknown reactor type : {rtype}')
 
         self.sol = new SolvePFR(<CanteraPFR *> self.obj)
-        self.sol.init(0.0)
 
     def __dealloc__(self):
         if type(self) is PyPFR:

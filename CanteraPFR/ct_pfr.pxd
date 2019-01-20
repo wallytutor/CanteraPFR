@@ -64,7 +64,6 @@ cdef extern from "CanteraPFR/IsothermalPFR.hpp" namespace "Cantera":
 cdef extern from "CanteraPFR/SolvePFR.hpp" namespace "Cantera":
     cdef cppclass SolvePFR:
         SolvePFR(CanteraPFR* pfr) except+
-        void init(double x0)
         void setTolerances(double reltol, double abstol)
         void setMaxNumSteps(int n)
         void setInitialStepSize(double h0)
