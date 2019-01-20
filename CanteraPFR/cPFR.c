@@ -6,6 +6,7 @@
 // ***************************************************************************
 
 #include "CanteraPFR/HeatWallPFR.hpp"
+#include "CanteraPFR/SolvePFR.hpp"
 
 
 int cppHeatWallPFR(const std::string & mech, const std::string & phase,
@@ -20,15 +21,12 @@ int cppHeatWallPFR(const std::string & mech, const std::string & phase,
     try
     {
         HeatWallPFR pfr {mech, phase, Di, T0, p0, X0, Q0, htc, Tw};
-        IDA_Solver solver {pfr};
+        SolvePFR solver {&pfr};
 
-        solver.init(0.0);
         solver.setTolerances(rtol, atol);
         solver.setMaxNumSteps(maxsteps);
-        solver.setJacobianType(0);
-        solver.setDenseLinearSolver();
         solver.setInitialStepSize(initstep);
-        solver.setStopTime(length);
+        solver.setStopPosition(length);
 
         double x = 0.0;
         int neq = pfr.nEquations();
@@ -36,9 +34,8 @@ int cppHeatWallPFR(const std::string & mech, const std::string & phase,
         while (x < length)
         {
             x = x + std::min(length - x, step);
-            solver.solve(x);
+            int retcode = solver.solve(x);
 
-            // TODO write to file.
             std::cout << std::scientific << x << " "
                       << solver.solution(neq-4) << " "
                       << solver.solution(neq-3) << " "
@@ -47,6 +44,8 @@ int cppHeatWallPFR(const std::string & mech, const std::string & phase,
                       << pfr.getIntEnergyMass() << " "
                       << std::endl;
         }
+
+        solver.writeResults(saveas);
     }
     catch (const CanteraError & err)
     {

@@ -91,7 +91,7 @@ class CPFR(object):
             # TODO add datetime.
             saveas = 'test.csv'
 
-        saveas = ctypes.c_wchar_p(saveas)
+        saveas = ctypes.create_string_buffer(saveas.encode('utf-8'))
         length = ctypes.c_double(length)
 
         t0 = time.time()
