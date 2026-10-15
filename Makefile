@@ -2,11 +2,18 @@
 ##  MAKEFILE
 ###############################################################################
 
-ifeq (,$(wildcard Makefile.in))
-include Makefile.in.default
-else
-include Makefile.in
-endif
+PYTHON       := python
+OPTIONS      := -g -O3 -std=c++11
+BLAS_LAPACK  := -lopenblas
+LIB_SUNDIALS := -Lexternal/Nix/lib -lsundials_ida -lsundials_nvecserial
+INC_SUNDIALS := -Iexternal/Nix/include
+LIB_CANTERA  := -Lexternal/Nix/lib -lcantera_shared
+INC_CANTERA  := -Iexternal/Nix/include
+LIB_SELF     := -LCanteraPFR/lib
+INC_SELF     := -ICanteraPFR/include
+LIBRARIES    := $(LIB_CANTERA) $(LIB_SUNDIALS) $(LIB_SELF) $(BLAS_LAPACK)
+INCLUDES     := $(INC_CANTERA) $(INC_SUNDIALS) $(INC_SELF)
+
 
 LIBRARIES += -pthread
 CPPFLAGS  := $(OPTIONS) -fPIC $(INCLUDES)
