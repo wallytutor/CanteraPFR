@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from .ct_pfr import *
-from .ct_aux import *
-from .ct_test import *
+try:
+    from .ct_pfr import *
+except ImportError:
+    pass
 
 
 def set_env():
