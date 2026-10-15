@@ -18,6 +18,12 @@ from .plot import (
     plotPFR
 )
 
+try:
+    from .ct_pfr import PyPFR
+    from .cpfr import CPFR, cPFR
+except (ImportError, Exception):
+    pass
+
 __version__ = '0.2.0'
 
 
@@ -73,6 +79,9 @@ __all__ = [
     'SimplifySetup',
     'SimplifyDRG',
     'SimplifyDRGManager',
+    'PyPFR',
+    'CPFR',
+    'cPFR',
     'set_env',
     '__version__'
 ]

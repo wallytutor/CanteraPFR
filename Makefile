@@ -57,8 +57,6 @@ $(STATIC_LIB): $(ALL_OBJS) | $(LIB_DIR)
 
 $(SHARED_LIB): $(ALL_OBJS) | $(LIB_DIR)
 	$(CXX) -shared -fPIC -o $@ $^ $(LIBRARIES)
-	@$(MKDIR_P) CanteraPFR/lib
-	@ln -sf ../../$@ CanteraPFR/lib/libCanteraPFR_shared.so
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
 	$(CXX) $(CPPFLAGS) -c $< -o $@
@@ -73,7 +71,7 @@ clean:
 	$(RM) $(BUILD_DIR)
 
 distclean: clean
-	$(RM) $(LIB_DIR) CanteraPFR/lib
+	$(RM) $(LIB_DIR)
 
 ###############################################################################
 ##  EOF

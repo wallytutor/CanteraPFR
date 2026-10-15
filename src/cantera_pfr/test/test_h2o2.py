@@ -3,7 +3,7 @@ import numpy
 import cantera
 from matplotlib import pyplot
 from scipy.integrate import ode
-from CanteraPFR.cPFR import CPFR
+from cantera_pfr import CPFR
 
 
 def test_CPFR():
