@@ -31,8 +31,8 @@ setup-x86_64.exe
 # Local builds.
 /build/
 /lib/
-/docs/build/*
-/CanteraPFR/lib/*
+/docs/_book/
+/docs/.quarto/
 /external/*
 
 # Local cygwin install.

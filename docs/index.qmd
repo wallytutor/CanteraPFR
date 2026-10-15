@@ -1,0 +1,36 @@
+# CanteraPFR {.unnumbered}
+
+## Overview
+
+**CanteraPFR** provides high-performance plug-flow reactor (PFR) models, dimensionless transport numbers calculators, and kinetic mechanism graph analysis tools built on top of [Cantera](https://cantera.org) and SUNDIALS IDAS.
+
+::: {.callout-note}
+CanteraPFR has been ported and modernized for **Linux** using Cantera 3.2.0, SUNDIALS 7, and Python 3.12+.
+:::
+
+## Key Features
+
+- **High-Performance PFR Models**: C++ core reactor engines interfaced via Cython (`PyPFR`) and Python (`CPFR`), solving the coupled differential-algebraic equations (DAE) for mass, momentum, species, and energy conservation using SUNDIALS `IdasIntegrator`:
+  - **Isothermal PFR**: Constant temperature operation with viscous pressure losses and chemical kinetics.
+  - **Adiabatic PFR**: Considers heat release/absorption from chemical reactions without external heat exchange.
+  - **Heat Wall PFR**: Imposed wall temperature profile $T_w(x)$ (constant or user-defined Python function) with convective wall heat exchange.
+- **Dimensionless Numbers Evaluator**: Fast calculation of $\mathrm{Re}$, $\mathrm{Pr}$, $\mathrm{Sc}$ bounds, thermal and chemical $\mathrm{Pe}$, $\mathrm{Gr}$, and $\mathrm{Ra}$ numbers for reacting gas mixtures based on [@Bird2001].
+- **Kinetic Graph Analysis & DRG Reduction**: Directed Relation Graph (DRG) methodology [@Lu2005] and NetworkX graph analysis for skeletal kinetic mechanism reduction.
+
+## Installation
+
+The package can be compiled and installed using `uv`:
+
+```bash
+uv pip install -e .
+```
+
+The build system compiles the C++ model implementations and Cython extensions into `cantera_pfr` automatically using standard `pyproject.toml` and `setup.py` build hooks, without requiring an external `make` run.
+
+If you wish to build standalone C++ static and shared libraries for linking with C++ applications:
+
+```bash
+make
+```
+
+This generates `lib/libCanteraPFR.a` and `lib/libCanteraPFR_shared.so`.

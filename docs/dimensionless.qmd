@@ -1,0 +1,85 @@
+# Dimensionless Numbers
+
+When analyzing chemically reacting flows and designing reactor systems, evaluating dimensionless groups is essential for delineating flow regimes, assessing convective vs. diffusive transport, and checking buoyancy effects [@Bird2001].
+
+## Definitions and Physical Significance
+
+### 1. Reynolds Number ($\mathrm{Re}$)
+
+Named for Osborne Reynolds (1842–1912), the Reynolds number delineates flow regimes by comparing inertial to viscous forces. For circular tubes of diameter $D$:
+
+$$\mathrm{Re} = \frac{\rho \langle v_{z} \rangle D}{\mu}$$
+
+where $\langle v_{z} \rangle$ is the average axial velocity, $\rho$ is gas density, and $\mu$ is dynamic viscosity. For $\mathrm{Re} < 2100$, steady flow in smooth tubes remains laminar [@Bird2001].
+
+### 2. Prandtl ($\mathrm{Pr}$) and Schmidt ($\mathrm{Sc}$) Numbers
+
+- **Prandtl Number**: Named for Ludwig Prandtl (1875–1953), $\mathrm{Pr}$ compares momentum diffusivity (kinematic viscosity $\nu = \mu/\rho$) to thermal diffusivity $\alpha = k/(\rho C_p)$:
+
+  $$\mathrm{Pr} = \frac{\nu}{\alpha} = \frac{C_p \mu}{k}$$
+
+  When transport data is unavailable, $\mathrm{Pr}$ can be estimated at low pressures for non-polar molecules via Eucken's formula:
+
+  $$\mathrm{Pr} \approx \frac{C_p}{C_p + \frac{5}{4}\mathcal{R}}$$
+
+- **Schmidt Number**: Named for Ernst Schmidt (1892–1975), $\mathrm{Sc}$ compares momentum diffusivity to mass diffusivity $D_k$:
+
+  $$\mathrm{Sc}_k = \frac{\nu}{D_k}$$
+
+  In multicomponent gas mixtures, each chemical species has its own binary or mixture-averaged diffusivity $D_{k,\mathrm{mix}}$. CanteraPFR evaluates the **bounds** across all species:
+
+  $$\mathrm{Sc}_{\min} = \frac{\nu}{\max_k D_k}, \qquad \mathrm{Sc}_{\max} = \frac{\nu}{\min_k D_k}$$
+
+### 3. Péclet Number ($\mathrm{Pe}$)
+
+Named for Jean-Claude-Eugène Péclet (1793–1857), $\mathrm{Pe}$ represents the ratio of convective transport to diffusive transport:
+
+$$\mathrm{Pe}_{\mathrm{th}} = \mathrm{Re} \cdot \mathrm{Pr} = \frac{u D}{\alpha}$$
+
+$$\mathrm{Pe}_{\mathrm{ch}} = \mathrm{Re} \cdot \mathrm{Sc} = \frac{u D}{D_k}$$
+
+In a plug-flow reactor, a high axial Péclet number ($\mathrm{Pe} \gg 1$) justifies neglecting axial dispersion.
+
+### 4. Grashof ($\mathrm{Gr}$) and Rayleigh ($\mathrm{Ra}$) Numbers
+
+The Grashof number (Franz Grashof, 1826–1893) characterizes natural convection by approximating the ratio of buoyancy forces to viscous forces:
+
+$$\mathrm{Gr} = \frac{g \beta D^3 (T_w - T)}{\nu^2}$$
+
+where $\beta = -\frac{1}{\rho}\left(\frac{\partial \rho}{\partial T}\right)_p$ is the isobaric thermal expansion coefficient (for an ideal gas, $\beta = 1/T$), and $g$ is gravity acceleration.
+
+The Rayleigh number is the product:
+
+$$\mathrm{Ra} = \mathrm{Gr} \cdot \mathrm{Pr}$$
+
+## Executable Example
+
+```python
+import cantera as ct
+from cantera_pfr import Dimensionless, Re, Pr, Sc, Pe, Gr, Ra
+
+gas = ct.Solution("h2o2.yaml")
+gas.TPX = 1200.0, 101325.0, "H2:2, O2:1, AR:0.1"
+
+# Characteristic parameters
+U = 5.0     # m/s
+D = 0.025   # m
+Tw = 1400.0 # K
+
+dim = Dimensionless(gas)
+
+re_val = dim.re(uz=U, d=D)
+pr_val = dim.pr()
+sc_min, sc_max = dim.sc()
+pe_th, (pe_ch_min, pe_ch_max) = dim.pe(uz=U, d=D)
+gr_val = dim.gr(d=D, tw=Tw)
+ra_val = dim.ra(d=D, tw=Tw)
+
+print(f"Reynolds number (Re) ......... {re_val:.2f}")
+print(f"Prandtl number (Pr) .......... {pr_val:.4f}")
+print(f"Schmidt number range (Sc) .... [{sc_min:.4f}, {sc_max:.4f}]")
+print(f"Thermal Peclet (Pe_th) ....... {pe_th:.2f}")
+print(f"Chemical Peclet range ........ [{pe_ch_min:.2f}, {pe_ch_max:.2f}]")
+print(f"Grashof number (Gr) .......... {gr_val:.2e}")
+print(f"Rayleigh number (Ra) ......... {ra_val:.2e}")
+```

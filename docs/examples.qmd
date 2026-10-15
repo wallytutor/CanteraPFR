@@ -1,0 +1,117 @@
+# Examples: $H_2/O_2$ Reacting PFR
+
+This chapter demonstrates the simulation of a hydrogen-oxygen reacting mixture in a plug-flow reactor using both CanteraPFR and a marching initial value ODE formulation with SciPy.
+
+## Example 1: Solving with CanteraPFR (`CPFR`)
+
+In this example, an ignition mixture ($\mathrm{H_2} : 2, \mathrm{O_2} : 1, \mathrm{Ar} : 0.1$) at $1500\,\mathrm{K}$ and $1\,\mathrm{atm}$ is fed into a reactor of cross-sectional area $A_c = 1.0\times 10^{-4}\,\mathrm{m^2}$ at an inlet velocity of $u_0 = 0.006\,\mathrm{m/s}$.
+
+```python
+import numpy as np
+import cantera as ct
+import matplotlib.pyplot as plt
+from cantera_pfr import CPFR, PyPFR
+
+mech = 'h2o2.yaml'
+phase = 'ohmech'
+T0 = 1500.0
+p0 = 101325.0
+X0 = "H2:2, O2:1, AR:0.1"
+
+# Compute reference and inlet density
+gas = ct.Solution(mech, phase)
+gas.TPX = 273.15, 101325.0, X0
+rho_ref = gas.density
+
+gas.TPX = T0, p0, X0
+rho0 = gas.density
+
+Ac = 1.0e-04
+u0 = 0.006
+length = 1.5e-07
+
+# Flow rate in sccm
+Q0 = 6.0e+07 * rho0 * u0 * Ac / rho_ref
+Di = float((4.0 * Ac / np.pi) ** 0.5)
+
+# Solve using PyPFR
+pfr = PyPFR(
+    rtype="adiabatic",
+    mech=mech,
+    phase=phase,
+    Di=Di,
+    T0=T0,
+    p0=p0,
+    X0=X0,
+    Q0=Q0
+)
+pfr.set_tolerances(1.0e-06, 1.0e-15)
+df_pfr = pfr.manage_solution(Lr=length, dx=length / 200, outfreq=1000)
+```
+
+## Example 2: Comparison with Marching ODE (SciPy VODE)
+
+To verify the integration, we can also formulate the 1D steady PFR as a marching ODE system integrated via `scipy.integrate.ode` (`method='bdf'`).
+
+$$\frac{\mathrm{d}Y_k}{\mathrm{d}x} = \frac{\dot{\omega}_k W_k}{\rho u}$$
+
+$$\frac{\mathrm{d}T}{\mathrm{d}x} = -\frac{\sum_k \dot{\omega}_k h_k}{\rho u C_p}$$
+
+```python
+from scipy.integrate import ode
+
+gas_ode = ct.Solution(mech)
+gas_ode.TPX = T0, p0, X0
+
+mass_flow_rate = u0 * gas_ode.density * Ac
+N = gas_ode.n_species
+
+def rhseqn(t, vec):
+    Y = vec[0:N]
+    T = vec[-1]
+    
+    gas_ode.set_unnormalized_mass_fractions(Y)
+    gas_ode.TP = T, p0
+    
+    rho = gas_ode.density
+    u = mass_flow_rate / (rho * Ac)
+    h_g = gas_ode.partial_molar_enthalpies
+    wdot_g = gas_ode.net_production_rates
+    W_g = gas_ode.molecular_weights
+    
+    vecp = np.zeros(N + 1)
+    for k in range(N):
+        vecp[k] = wdot_g[k] * W_g[k] / (rho * u)
+    vecp[-1] = -np.sum(wdot_g * h_g) / (rho * u * gas_ode.cp)
+    return vecp
+
+x0 = 0.0
+Nx = 200
+dx = length / Nx
+solver = ode(rhseqn).set_integrator('vode', method='bdf')
+solver.set_initial_value(np.hstack((gas_ode.Y, T0)), x0)
+
+x_ode = [x0]
+T_ode = [T0]
+
+while solver.successful() and solver.t < length:
+    solver.integrate(solver.t + dx)
+    x_ode.append(solver.t)
+    T_ode.append(solver.y[-1])
+```
+
+## Results Comparison
+
+```python
+fig, ax = plt.subplots(figsize=(8, 4.5))
+ax.plot(df_pfr['x'] * 1e9, df_pfr['T'], 'r-', lw=2, label='CanteraPFR (DAE / IDAS)')
+ax.plot(np.array(x_ode) * 1e9, T_ode, 'k--', lw=1.5, label='SciPy VODE (BDF ODE)')
+
+ax.set_xlabel('Reactor Position [nm]')
+ax.set_ylabel('Temperature [K]')
+ax.set_title('Hydrogen-Oxygen Ignition Profile in PFR')
+ax.grid(True, alpha=0.3)
+ax.legend()
+plt.tight_layout()
+plt.show()
+```
