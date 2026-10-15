@@ -7,7 +7,7 @@ from CanteraPFR.cPFR import CPFR
 
 
 def test_CPFR():
-    mech = 'h2o2.cti'
+    mech = 'h2o2.yaml'
     phase = 'ohmech'
     T0 = 1500.0
     p0 = 101325.0
@@ -39,11 +39,11 @@ def test_CPFR():
 
 def test_VODE():
     """ PFR represented as a marching ODE. """
-    mech = 'h2o2.xml'
+    mech = 'h2o2.yaml'
     gas = cantera.Solution(mech)
 
     T0 = 1500              # [K]
-    p0 = cantera.one_atm   # [Pa]
+    p0 = getattr(cantera, 'OneAtm', getattr(cantera, 'one_atm', 101325.0))
     gas.TPX = T0, p0, "H2:2, O2:1, AR:0.1"
 
     length = 1.5e-7   # *approximate* PFR length [m]
@@ -54,7 +54,7 @@ def test_VODE():
 
     mass_flow_rate = u0 * gas.density * Ac
     N = gas.n_species  # number of gas species
-    vecp = numpy.zeros((N+1, 1))
+    vecp = numpy.zeros(N + 1)
 
     def rhseqn(t, vec):
         Y = vec[0:N]

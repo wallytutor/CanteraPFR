@@ -5,8 +5,13 @@
 // Date   : January 14th 2019
 // ***************************************************************************
 
-#include "CanteraPFR/HeatWallPFR.hpp"
-#include "CanteraPFR/SolvePFR.hpp"
+#include <cmath>
+#include <iostream>
+#include <string>
+#include <functional>
+
+#include "HeatWallPFR.hpp"
+#include "SolvePFR.hpp"
 
 
 int cppHeatWallPFR(const std::string & mech, const std::string & phase,
@@ -29,18 +34,22 @@ int cppHeatWallPFR(const std::string & mech, const std::string & phase,
         solver.setStopPosition(length);
 
         double x = 0.0;
-        int neq = pfr.nEquations();
+        size_t neq = pfr.nEquations();
 
         while (x < length)
         {
             x = x + std::min(length - x, step);
             int retcode = solver.solve(x);
+            if (retcode != 0) {
+                std::cerr << "Solver returned error code " << retcode << " at x = " << x << std::endl;
+                return retcode;
+            }
 
             std::cout << std::scientific << x << " "
-                      << solver.solution(neq-4) << " "
-                      << solver.solution(neq-3) << " "
-                      << solver.solution(neq-2) << " "
-                      << solver.solution(neq-1) << " "
+                      << solver.solution(neq - 4) << " "
+                      << solver.solution(neq - 3) << " "
+                      << solver.solution(neq - 2) << " "
+                      << solver.solution(neq - 1) << " "
                       << pfr.getIntEnergyMass() << " "
                       << std::endl;
         }
@@ -113,7 +122,7 @@ extern "C"
     int test_PFR()
     {
         char saveas[] = "test_PFR.csv";
-        char mech[] = "CT-hydrocarbon-dalmazsi-2017-mech.xml";
+        char mech[] = "CT-hydrocarbon-dalmazsi-2017-mech.yaml";
         char phase[] = "gas";
         char X0[] = "N2:0.64, C2H2:0.36";
         double Di = 0.028;
@@ -133,7 +142,3 @@ extern "C"
     }
 
 } // extern "C"
-
-// ***************************************************************************
-//                                  EOF
-// ***************************************************************************

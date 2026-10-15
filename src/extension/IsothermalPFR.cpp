@@ -5,21 +5,21 @@
 // Date   : December 21st 2018
 // ***************************************************************************
 
-#include "CanteraPFR/IsothermalPFR.hpp"
+#include "IsothermalPFR.hpp"
 
-int Cantera::IsothermalPFR::getInitialConditions(const doublereal t0,
-    doublereal *const y, doublereal *const ydot)
+int Cantera::IsothermalPFR::getInitialConditions(const double t0,
+    double *const y, double *const ydot)
 {
-    const doublereal P0 = m_gas->pressure();
-    const doublereal rho0 = m_gas->density();
-    const doublereal Wavg = m_gas->meanMolecularWeight();
-    const doublereal RT = m_gas->temperature() * Cantera::GasConstant;
+    const double P0 = m_gas->pressure();
+    const double rho0 = m_gas->density();
+    const double Wavg = m_gas->meanMolecularWeight();
+    const double RT = m_gas->temperature() * Cantera::GasConstant;
 
     m_gas->getMassFractions(y);
-    m_gas->getNetProductionRates(&m_wdot[0]);
+    m_kin->getNetProductionRates(m_wdot.data());
 
-    Eigen::MatrixXd A(neq_, neq_);
-    Eigen::VectorXd b(neq_);
+    Eigen::MatrixXd A = Eigen::MatrixXd::Zero(neq_, neq_);
+    Eigen::VectorXd b = Eigen::VectorXd::Zero(neq_);
 
     y[idx0] = m_u0;
     y[idx1] = rho0;
@@ -38,21 +38,21 @@ int Cantera::IsothermalPFR::getInitialConditions(const doublereal t0,
     // Continuity equation elements.
     A(idx0, idx0) = rho0;           // u'
     A(idx0, idx1) = m_u0;           // rho'
-    A(idx0, idx2) = 0;              // p'
+    A(idx0, idx2) = 0.0;            // p'
 
     // Momentum equation elements.
     A(idx1, idx0) = rho0 * m_u0;    // u'
-    A(idx1, idx1) = 0;              // rho'
-    A(idx1, idx2) = 1;              // p'
+    A(idx1, idx1) = 0.0;            // rho'
+    A(idx1, idx2) = 1.0;            // p'
 
     // State equation elements.
-    A(idx2, idx0) = 0;              // u'
+    A(idx2, idx0) = 0.0;            // u'
     A(idx2, idx1) = RT;             // rho'
     A(idx2, idx2) = -Wavg;          // p'
 
-    b(idx0) = 0;                    // RHS continuity
+    b(idx0) = 0.0;                  // RHS continuity
     b(idx1) = -viscousLoss(m_u0);   // RHS momentum
-    b(idx2) = 0;                    // RHS state
+    b(idx2) = 0.0;                  // RHS state
 
     Eigen::VectorXd x = A.fullPivLu().solve(b);
     Eigen::VectorXd::Map(ydot, x.rows()) = x;
@@ -60,23 +60,22 @@ int Cantera::IsothermalPFR::getInitialConditions(const doublereal t0,
     return 0;
 }
 
-int Cantera::IsothermalPFR::evalResidNJ(const doublereal t,
-    const doublereal delta_t, const doublereal* const y,
-    const doublereal* const ydot, doublereal* const resid,
-    const Cantera::ResidEval_Type_Enum evalType, const int id_x,
-    const doublereal delta_x)
+int Cantera::IsothermalPFR::evalResidNJ(const double t,
+    const double delta_t, const double* const y,
+    const double* const ydot, double* const resid,
+    const int id_x, const double delta_x)
 {
-    const doublereal u = y[idx0];
-    const doublereal r = y[idx1];
-    const doublereal p = y[idx2];
+    const double u = y[idx0];
+    const double r = y[idx1];
+    const double p = y[idx2];
 
-    const doublereal dudz = ydot[idx0];
-    const doublereal drdz = ydot[idx1];
-    const doublereal dpdz = ydot[idx2];
+    const double dudz = ydot[idx0];
+    const double drdz = ydot[idx1];
+    const double dpdz = ydot[idx2];
 
     m_gas->setMassFractions_NoNorm(y);
     m_gas->setState_TP(m_T0, p);
-    m_gas->getNetProductionRates(&m_wdot[0]);
+    m_kin->getNetProductionRates(m_wdot.data());
 
     for (unsigned k = 0; k != idx0; ++k)
     {
@@ -89,7 +88,3 @@ int Cantera::IsothermalPFR::evalResidNJ(const doublereal t,
 
     return 0;
 }
-
-// ***************************************************************************
-//                                  EOF
-// ***************************************************************************

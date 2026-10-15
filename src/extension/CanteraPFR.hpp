@@ -13,14 +13,22 @@
 #include <iomanip>
 #include <iostream>
 #include <fstream>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <sstream>
 #include <vector>
-#include "cantera/IdealGasMix.h"
-#include "cantera/numerics/IDA_Solver.h"
+#include <algorithm>
+
+#include "cantera/base/config.h"
+#include "cantera/base/global.h"
+#include "cantera/base/Solution.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/kinetics/Kinetics.h"
+#include "cantera/transport/Transport.h"
+#include "cantera/numerics/FuncEval.h"
+#include "cantera/numerics/IdasIntegrator.h"
 #include "cantera/numerics/eigen_dense.h"
-#include "cantera/transport.h"
 
 #ifndef VISCOSITY_DEFAULT
 #define VISCOSITY_DEFAULT 3.957996309582866e-05
@@ -33,97 +41,122 @@
 namespace Cantera
 {
 
-static inline doublereal circleArea(doublereal Di)
+static inline double circleArea(double Di)
 {
     return Cantera::Pi * Di * Di / 4;
 }
 
-static inline doublereal sccmTocmps(doublereal sccm)
+static inline double sccmTocmps(double sccm)
 {
-    return sccm / 60000000;
+    return sccm / 60000000.0;
 }
 
-class CanteraPFR : public ResidJacEval
+class CanteraPFR : public FuncEval
 {
 public:
     CanteraPFR(std::string const& mech,
                std::string phase,
-               doublereal T0,
-               doublereal p0,
+               double T0,
+               double p0,
                std::string X0,
                unsigned neqs_extra_)
-        : ResidJacEval{}
+        : FuncEval{}
     {
         suppress_thermo_warnings(SUPPRESS_WARNINGS);
 
         std::cout << std::boolalpha
                   << "\nIntegrating PFR"
-                  << "\nUsing Sundials : " << CT_SUNDIALS_VERSION
-                  << "\nUsing LAPACK   : " << bool(CT_SUNDIALS_USE_LAPACK)
+                  << "\nUsing Cantera  : " << CANTERA_VERSION
                   << std::endl;
 
-        m_gas = new IdealGasMix {mech, phase};
+        m_sol = newSolution(mech, phase);
+        m_gas = m_sol->thermo();
+        m_kin = m_sol->kinetics();
+        m_trn = m_sol->transport();
+
         m_gas->setState_TPX(273.15, Cantera::OneAtm, X0);
         m_rho_ref = m_gas->density();
 
         m_gas->setState_TPX(T0, p0, X0);
 
-        nspec_gas_ = m_gas->nSpecies();
+        nspec_gas_ = static_cast<unsigned>(m_gas->nSpecies());
         neq_ = nspec_gas_ + neqs_extra_;
 
         m_W.resize(nspec_gas_);
         m_wdot.resize(nspec_gas_);
-        m_gas->getMolecularWeights(m_W);
+        m_gas->getMolecularWeights(m_W.data());
 
         m_var = m_gas->speciesNames();
 
         try
         {
             std::cout << "Getting transport manager..." << std::endl;
-            m_trn = newDefaultTransportMgr(m_gas);
-            m_mu = [&](){ return m_trn->viscosity(); };
-            m_mu();
-            std::cout << "Using mechanism viscosity..." << std::endl;
+            if (m_trn) {
+                m_mu = [this]() { return m_trn->viscosity(); };
+                m_mu();
+                std::cout << "Using mechanism viscosity..." << std::endl;
+            } else {
+                throw CanteraError("CanteraPFR", "No transport manager available.");
+            }
         }
         catch (CanteraError &err)
         {
             std::cerr << err.what() << std::endl;
             std::cout << "Fallback to default viscosity..." << std::endl;
-            m_mu = [&](){ return VISCOSITY_DEFAULT; };
+            m_mu = [](){ return VISCOSITY_DEFAULT; };
         }
     }
 
-    ~CanteraPFR()
+    ~CanteraPFR() override = default;
+
+    virtual int getInitialConditions(const double t0,
+                                     double *const y,
+                                     double *const ydot) = 0;
+
+    virtual int evalResidNJ(const double t,
+                            const double delta_t,
+                            const double* const y,
+                            const double* const ydot,
+                            double* const resid,
+                            const int id_x = -1,
+                            const double delta_x = 0.0) = 0;
+
+    size_t neq() const override
     {
-        if (m_gas != nullptr) delete m_gas;
-        if (m_trn != nullptr) delete m_trn;
-        appdelete();
+        return neq_;
     }
 
-    virtual int getInitialConditions(const doublereal t0,
-                                     doublereal *const y,
-                                     doublereal *const ydot) = 0;
+    size_t nEquations() const
+    {
+        return neq_;
+    }
 
-    virtual int evalResidNJ(const doublereal t,
-                    const doublereal delta_t,
-                    const doublereal* const y,
-                    const doublereal* const ydot,
-                    doublereal* const resid,
-                    const ResidEval_Type_Enum evalType = Base_ResidEval,
-                    const int id_x = -1,
-                    const doublereal delta_x = 0.0) = 0;
+    void getStateDae(double* y, double* ydot) override
+    {
+        getInitialConditions(0.0, y, ydot);
+    }
+
+    void evalDae(double t, double* y, double* ydot, double* p, double* residual) override
+    {
+        evalResidNJ(t, 0.0, y, ydot, residual);
+    }
+
+    void getConstraints(double* constraints) override
+    {
+        std::fill(constraints, constraints + neq_, 1.0);
+    }
 
     unsigned getSpeciesIndex(std::string name) const
     {
-        return m_gas->kineticsSpeciesIndex(name);
+        return static_cast<unsigned>(m_kin->kineticsSpeciesIndex(name));
     }
 
-    doublereal getIntEnergyMass() const
+    double getIntEnergyMass() const
     {
         return m_gas->intEnergy_mass();
     }
 
-    void setViscosityFunc(std::function<doublereal()> const& mu)
+    void setViscosityFunc(std::function<double()> const& mu)
     {
         m_mu = mu;
     }
@@ -134,36 +167,41 @@ public:
     }
 
 protected:
-  //! Pointer to the gas phase object.
-  IdealGasMix *m_gas = nullptr;
+    //! Managed pointer to Solution object.
+    std::shared_ptr<Solution> m_sol;
 
-  //! Pointer to the transport manager.
-  Transport *m_trn = nullptr;
+    //! Pointer to the gas phase thermo object.
+    std::shared_ptr<ThermoPhase> m_gas;
 
-  //! Viscosity function interface.
-  std::function<doublereal()> m_mu;
+    //! Pointer to the kinetics manager.
+    std::shared_ptr<Kinetics> m_kin;
 
-  //! Species molar weights.
-  std::vector<doublereal> m_W;
+    //! Pointer to the transport manager.
+    std::shared_ptr<Transport> m_trn;
 
-  //! Species net production rates.
-  std::vector<doublereal> m_wdot;
+    //! Viscosity function interface.
+    std::function<double()> m_mu;
 
-  //! Species names and variables.
-  std::vector<std::string> m_var;
+    //! Species molar weights.
+    std::vector<double> m_W;
 
-  //! Number of gas phase species.
-  unsigned nspec_gas_;
+    //! Species net production rates.
+    std::vector<double> m_wdot;
 
-  //! Reference state inlet density.
-  doublereal m_rho_ref;
+    //! Species names and variables.
+    std::vector<std::string> m_var;
+
+    //! Number of gas phase species.
+    unsigned nspec_gas_;
+
+    //! Total number of equations.
+    unsigned neq_;
+
+    //! Reference state inlet density.
+    double m_rho_ref;
 
 }; // (class CanteraPFR)
 
 } // (namespace Cantera)
 
 #endif // (__CANTERAPFR_HPP__)
-
-// ***************************************************************************
-//                                  EOF
-// ***************************************************************************
